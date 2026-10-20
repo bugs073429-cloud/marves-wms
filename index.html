@@ -384,6 +384,325 @@
     .content-area { overflow: visible !important; }
   }
 </style>
+<style id="ux-boost">
+/* ===== UX BOOST: performa, ikon beranimasi, hover 3D (hanya transform/opacity) ===== */
+:root{
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --sh-1:0 1px 2px rgba(29,45,62,.06),0 2px 6px rgba(29,45,62,.05);
+  --sh-2:0 2px 4px rgba(29,45,62,.06),0 10px 24px rgba(74,134,198,.16);
+  --sh-3:0 4px 8px rgba(29,45,62,.08),0 18px 36px rgba(74,134,198,.22);
+  --radius:8px;
+}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeSpeed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* Shell bar */
+.shell-bar{background:linear-gradient(90deg,#4a86c6,#6fa3d8);box-shadow:0 2px 10px rgba(74,134,198,.35)}
+.shell-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border-radius:8px;
+  transition:background .15s,transform .2s var(--ease)}
+.shell-icon:hover{background:rgba(255,255,255,.22);transform:translateY(-2px)}
+.shell-icon:active{transform:translateY(0) scale(.94)}
+.shell-avatar{box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+
+/* Ikon SVG */
+.ico{display:inline-flex;width:18px;height:18px;flex:0 0 18px;color:var(--accent);transition:color .15s}
+.ico svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  transform-origin:50% 50%;transition:transform .35s var(--ease)}
+.shell-icon .ico{color:#fff;width:18px;height:18px}
+.nav-item .lbl-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Sidebar */
+.sidebar{box-shadow:2px 0 14px rgba(29,45,62,.05)}
+.nav-item{position:relative;border-left:0!important;border-radius:10px!important;margin:1px 2px;
+  transition:background-color .15s,color .15s,transform .2s var(--ease),box-shadow .2s var(--ease)!important}
+.nav-item::before{content:"";position:absolute;left:-2px;top:50%;width:4px;height:0;border-radius:4px;background:var(--accent);
+  transform:translateY(-50%);transition:height .2s var(--ease)}
+.nav-item:hover{background:var(--bg-hover-strong);transform:translateX(4px);box-shadow:0 4px 10px rgba(74,134,198,.14)}
+.nav-item:active{transform:translateX(2px) scale(.98)}
+.nav-item.active{background:linear-gradient(90deg,var(--accent-dim),transparent);box-shadow:inset 0 0 0 1px rgba(91,155,213,.25)}
+.nav-item.active::before{height:60%}
+.nav-item.active .ico svg{animation:icoPop .5s var(--ease)}
+.nav-group-title{transition:background-color .15s,color .15s}
+
+/* Animasi ikon saat hover (ikon spesifik) */
+.nav-item:hover .ico svg,.shell-icon:hover .ico svg,.lg-btn:hover .ico svg{transform:scale(1.18)}
+[data-i=camera]:hover svg{animation:icoPop .45s var(--ease)}
+.nav-item:hover [data-i=upload] svg{transform:translateY(-3px) scale(1.12)}
+.nav-item:hover [data-i=refresh] svg{transform:rotate(180deg) scale(1.1)}
+.nav-item:hover [data-i=shuffle] svg{animation:icoShake .5s ease}
+.nav-item:hover [data-i=search] svg,.lg-btn:hover [data-i=search] svg{transform:rotate(-14deg) scale(1.2)}
+.nav-item:hover [data-i=chart] svg,.nav-item:hover [data-i=trend] svg{transform:scaleY(1.2) translateY(-1px)}
+.nav-item:hover [data-i=history] svg{transform:rotate(-120deg)}
+.nav-item:hover [data-i=scale] svg{animation:icoSwing .6s ease}
+.nav-item:hover [data-i=lock] svg{animation:icoShake .4s ease}
+.nav-item:hover [data-i=globe] svg{transform:rotate(25deg) scale(1.15)}
+.nav-item:hover [data-i=package] svg{animation:icoPop .45s var(--ease)}
+.nav-item:hover [data-i=users] svg{transform:scale(1.2) translateY(-1px)}
+.shell-icon:hover [data-i=settings] svg{transform:rotate(90deg)}
+.shell-icon:hover [data-i=logout] svg{transform:translateX(3px)}
+.shell-icon:hover [data-i=panel] svg{transform:scaleX(.8)}
+@keyframes icoPop{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-6deg)}100%{transform:scale(1)}}
+@keyframes icoShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes icoSwing{0%,100%{transform:rotate(0)}30%{transform:rotate(-14deg)}70%{transform:rotate(14deg)}}
+
+/* Kartu: elevasi lembut */
+.card,.stat-card{border-radius:var(--radius);box-shadow:var(--sh-1);transition:box-shadow .25s var(--ease),border-color .2s}
+.card:hover{box-shadow:var(--sh-2);border-color:var(--border-light)}
+.card-header{border-bottom-color:var(--border);letter-spacing:.1px}
+
+/* Stat card: tilt 3D mengikuti kursor (hanya perangkat dengan mouse) */
+.stat-card{--rx:0deg;--ry:0deg;transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style:preserve-3d;transition:transform .18s ease-out,box-shadow .25s var(--ease)}
+.stat-card:hover{box-shadow:var(--sh-3);border-color:var(--accent);transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-4px) scale(1.02);z-index:2}
+.stat-card .num{transform:translateZ(22px)}
+.stat-card .lbl{transform:translateZ(10px)}
+
+/* Tombol: terasa "timbul" lalu tertekan */
+.btn{border-radius:8px;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 2px 4px rgba(29,45,62,.10);
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),background-color .15s,border-color .15s,color .15s}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 8px 16px rgba(74,134,198,.28)}
+.btn:active:not(:disabled){transform:translateY(1px) scale(.98);box-shadow:0 1px 2px rgba(29,45,62,.18) inset}
+.btn-accent{background:linear-gradient(180deg,#6aa9e0,var(--accent))}
+.btn-accent:hover:not(:disabled){background:linear-gradient(180deg,#5b9bd5,var(--accent-hover))}
+.btn-delete,.btn-copy,.btn-close{transition:transform .15s var(--ease),background-color .15s,color .15s}
+.btn-delete:hover,.btn-close:hover{transform:scale(1.15) rotate(8deg)}
+.btn-copy:hover{transform:translateY(-1px)}
+
+/* Input */
+input[type=text],input[type=date],select{border-radius:8px;transition:border-color .15s,box-shadow .2s}
+
+/* Baris tabel: highlight halus */
+tbody tr{transition:background-color .12s}
+tbody tr:hover{background-color:var(--bg-hover)}
+
+/* Transisi pindah tab (opacity+transform saja) */
+section[id^="tab-"]:not(.hidden){animation:tabIn .22s var(--ease)}
+@keyframes tabIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Modal & toast */
+.modal-content{border-radius:14px;box-shadow:var(--sh-3)}
+.toast{border-radius:10px;box-shadow:var(--sh-3)}
+
+/* Login */
+#loginGate .lg-card{animation:tabIn .35s var(--ease);border-radius:18px}
+#loginGate .lg-btn{transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .15s}
+#loginGate .lg-btn:hover{transform:translateY(-3px);box-shadow:var(--sh-2)}
+#loginGate .lg-btn:active{transform:translateY(0) scale(.98)}
+#loginGate .lg-ico.ico{width:26px;height:26px;flex-basis:26px}
+
+/* Perangkat sentuh / hemat gerak: matikan efek berat */
+@media (hover:none){
+  .stat-card{transform:none!important}.stat-card .num,.stat-card .lbl{transform:none}
+  .nav-item:hover{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .stat-card,.stat-card:hover{transform:none!important}
+}
+@media print{.stat-card,.btn,.card{transform:none!important;box-shadow:none!important}}
+
+/* ===== Ikon berwarna: tiap ikon punya warna sendiri, chip lembut, jadi solid saat hover/aktif ===== */
+[data-i=camera]{--ic:#ea580c}[data-i=upload]{--ic:#7c3aed}[data-i=refresh]{--ic:#0284c7}[data-i=clip]{--ic:#16a34a}
+[data-i=shuffle]{--ic:#db2777}[data-i=search]{--ic:#0891b2}[data-i=chart]{--ic:#2563eb}[data-i=history]{--ic:#9333ea}
+[data-i=scale]{--ic:#ca8a04}[data-i=trend]{--ic:#059669}[data-i=monitor]{--ic:#4f46e5}[data-i=lock]{--ic:#d97706}
+[data-i=globe]{--ic:#0d9488}[data-i=package]{--ic:#c2410c}[data-i=tag]{--ic:#e11d48}[data-i=qr]{--ic:#475569}[data-i=users]{--ic:#f97316}[data-i=doc]{--ic:#0369a1}
+.ico{color:var(--ic,var(--accent))}
+/* isi duotone lembut pada bentuk tertutup */
+.ico svg rect,.ico svg circle,[data-i=camera] path,[data-i=package] path,[data-i=tag] path{fill:currentColor;fill-opacity:.16}
+[data-i=chart] path,[data-i=trend] path,[data-i=history] path,[data-i=search] path,[data-i=refresh] path,[data-i=shuffle] path{fill:none}
+.nav-item .ico{width:28px;height:28px;flex:0 0 28px;padding:5px;border-radius:9px;
+  background:color-mix(in srgb,var(--ic,#5b9bd5) 14%,transparent);transition:background-color .2s,color .2s,box-shadow .2s var(--ease)}
+.nav-item:hover .ico,.nav-item.active .ico{background:linear-gradient(135deg,var(--ic),color-mix(in srgb,var(--ic) 70%,#fff));color:#fff;
+  box-shadow:0 4px 10px color-mix(in srgb,var(--ic) 45%,transparent)}
+.nav-item:hover .ico svg rect,.nav-item:hover .ico svg circle,.nav-item.active .ico svg rect,.nav-item.active .ico svg circle,
+.nav-item:hover [data-i=camera] path,.nav-item.active [data-i=camera] path,.nav-item:hover [data-i=package] path,.nav-item.active [data-i=package] path,
+.nav-item:hover [data-i=tag] path,.nav-item.active [data-i=tag] path{fill-opacity:.28}
+.nav-item.locked .ico{--ic:#d97706}
+/* bar atas: tetap putih agar kontras di latar biru, tetapi chip berwarna saat hover */
+.shell-icon .ico{color:#fff;width:20px;height:20px;background:none;box-shadow:none;padding:0}
+.shell-icon:hover [data-i=settings]{color:#fde68a}.shell-icon:hover [data-i=logout]{color:#fecaca}.shell-icon:hover [data-i=stop]{color:#fecaca}
+/* login */
+#loginGate .lg-ico.ico{width:44px;height:44px;flex-basis:44px;padding:9px;border-radius:12px;
+  background:linear-gradient(135deg,var(--ic),color-mix(in srgb,var(--ic) 65%,#fff));color:#fff;box-shadow:0 6px 14px color-mix(in srgb,var(--ic) 40%,transparent)}
+</style>
+<script>try{if(localStorage.getItem("wms_theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
+<style id="ux-boost-2">
+/* ===== UX BOOST 2: tampilan modern, animasi halus, 3D ringan, mode gelap =====
+   Performa: animasi hanya transform/opacity, tanpa blur berat di area besar,
+   efek mati di layar sentuh, reduced-motion, dan saat tab tidak terlihat. */
+:root{
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --grad-a:linear-gradient(135deg,#4a86c6 0%,#5b9bd5 45%,#7ab8e8 100%);
+  --glass:rgba(255,255,255,.72);
+  --ring:0 0 0 3px rgba(91,155,213,.28);
+  --radius:12px;
+}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg-app:#0e1622; --bg-sidebar:#121c2b; --bg-card:#162235; --bg-input:#1a2a40;
+  --bg-hover:#1d2f48; --bg-hover-strong:#25395a; --border:#25364d; --border-light:#344a66;
+  --text-main:#e7eef7; --text-muted:#8ea3bb; --accent:#6db0ee; --accent-hover:#8cc4f5;
+  --accent-dim:rgba(109,176,238,.16); --accent-glow:rgba(109,176,238,.35);
+  --success-dim:rgba(76,175,130,.16); --danger-dim:rgba(224,122,122,.14); --warning-dim:rgba(217,162,86,.16);
+  --glass:rgba(22,34,53,.78);
+  --sh-1:0 1px 2px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.25);
+  --sh-2:0 4px 10px rgba(0,0,0,.35),0 12px 28px rgba(0,0,0,.35);
+  --sh-3:0 6px 14px rgba(0,0,0,.45),0 20px 40px rgba(0,0,0,.45);
+}
+html[data-theme="dark"] thead{background:#1b2b42}
+html[data-theme="dark"] .modal-header{background:#1b2b42}
+html[data-theme="dark"] .btn-ghost,html[data-theme="dark"] .btn-danger,html[data-theme="dark"] .btn-warning,html[data-theme="dark"] .btn-copy{background:var(--bg-card)}
+html[data-theme="dark"] .badge.out{background:rgba(124,92,230,.18);color:#b9a6ff}
+html[data-theme="dark"] #loginGate .lg-card{background:var(--bg-card);color:var(--text-main)}
+html[data-theme="dark"] #loginGate #lgPass,html[data-theme="dark"] #loginGate #lgUser{background:var(--bg-input);color:var(--text-main);border-color:var(--border-light)}
+
+body{background:var(--bg-app)}
+.content-area{background:
+  radial-gradient(900px 420px at 100% -10%,rgba(91,155,213,.14),transparent 60%),
+  radial-gradient(700px 380px at -5% 105%,rgba(76,175,130,.09),transparent 60%),var(--bg-app)}
+
+/* Shell bar */
+.shell-bar{position:relative;overflow:hidden;background:var(--grad-a);box-shadow:0 4px 18px rgba(74,134,198,.38)}
+.shell-bar::after{content:"";position:absolute;top:0;left:-40%;width:40%;height:100%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transform:translateX(0) skewX(-18deg);
+  animation:shellSheen 9s ease-in-out infinite}
+@keyframes shellSheen{0%,70%{transform:translateX(0) skewX(-18deg)}100%{transform:translateX(380%) skewX(-18deg)}}
+
+/* Sidebar */
+.sidebar{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.nav-group-title{letter-spacing:.9px;position:relative}
+.nav-group-title::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.nav-item{font-weight:500}
+.nav-item:hover{transform:translateX(6px)}
+.nav-item.active{font-weight:700;background:linear-gradient(90deg,var(--accent-dim),transparent 90%)}
+.nav-group-items{animation:groupIn .25s var(--ease)}
+@keyframes groupIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.sidebar-footer{background:linear-gradient(0deg,var(--accent-dim),transparent)}
+.status-dot.on{animation:dotPulse 2s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 3px var(--success-dim)}50%{box-shadow:0 0 0 7px rgba(76,175,130,0)}}
+
+/* Kartu */
+.card{position:relative;border-radius:var(--radius);transition:box-shadow .25s var(--ease),border-color .2s,transform .25s var(--ease)}
+.card::before{content:"";position:absolute;left:14px;right:14px;top:0;height:2px;border-radius:0 0 4px 4px;
+  background:var(--grad-a);opacity:0;transform:scaleX(.3);transition:opacity .25s,transform .35s var(--ease);pointer-events:none}
+.card:hover::before{opacity:.9;transform:scaleX(1)}
+.card-header{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}
+.card-header::before{content:"";width:4px;height:16px;border-radius:3px;background:var(--grad-a);flex:0 0 4px}
+/* kartu berisi tabel/form besar tidak ikut terangkat (hindari layout bergeser) */
+.card:hover{transform:none}
+.dual-grid>div>.card:hover,#tab-master .card:hover,#tab-rfidmap .card:hover,#tab-qrcode .card:hover{transform:translateY(-2px)}
+
+/* Stat card: aksen gradasi, kilau, tilt 3D (tilt dari ux-boost lama tetap berlaku) */
+.stat-card{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(160deg,var(--bg-card) 60%,var(--accent-dim))}
+.stat-card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--grad-a);opacity:.85}
+.stat-card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(0) skewX(-18deg);opacity:0}
+.stat-card:hover::after{opacity:1;animation:cardSheen .8s var(--ease)}
+@keyframes cardSheen{from{transform:translateX(0) skewX(-18deg)}to{transform:translateX(480%) skewX(-18deg)}}
+.stat-card .num{transform:none;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.stat-card .lbl{transform:none}
+.stat-card .kpi-ico{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;background:var(--accent-dim);transition:transform .3s var(--spring)}
+.stat-card:hover .kpi-ico{transform:scale(1.2) rotate(-8deg)}
+
+/* Tombol: ripple + gradasi */
+.btn{position:relative;overflow:hidden;font-weight:700}
+.btn-accent{background:var(--grad-a);border-color:transparent;box-shadow:0 4px 12px rgba(74,134,198,.32)}
+.btn-accent:hover:not(:disabled){box-shadow:0 10px 22px rgba(74,134,198,.42);filter:saturate(1.1)}
+.btn .rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);pointer-events:none;animation:rip .6s ease-out forwards}
+.btn-ghost .rip,.btn-danger .rip,.btn-warning .rip{background:rgba(91,155,213,.3)}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+
+/* Input */
+input[type=text],input[type=date],input[type=password],input[type=number],select{border-radius:10px;transition:border-color .15s,box-shadow .2s,background-color .15s}
+input:focus,select:focus{border-color:var(--accent)!important;box-shadow:var(--ring)!important;outline:none}
+.scan-input{border-radius:12px!important}
+.scan-input:focus{animation:scanPulse 1.8s ease-in-out infinite}
+@keyframes scanPulse{0%,100%{box-shadow:0 0 0 3px rgba(91,155,213,.25)}50%{box-shadow:0 0 0 7px rgba(91,155,213,.08)}}
+
+.result{border-radius:10px;animation:resultIn .35s var(--spring)}
+@keyframes resultIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+
+/* Tabel */
+.scroll-table{border-radius:10px;background:var(--bg-card)}
+tbody tr:nth-child(-n+8){animation:rowIn .28s var(--ease) both}
+tbody tr:nth-child(2){animation-delay:.03s}tbody tr:nth-child(3){animation-delay:.06s}tbody tr:nth-child(4){animation-delay:.09s}
+tbody tr:nth-child(5){animation-delay:.12s}tbody tr:nth-child(6){animation-delay:.15s}tbody tr:nth-child(7){animation-delay:.18s}tbody tr:nth-child(8){animation-delay:.21s}
+@keyframes rowIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+tbody tr:hover{box-shadow:inset 3px 0 0 var(--accent)}
+.badge{border-radius:999px;padding:2px 9px}
+
+/* Modal & toast */
+.modal-overlay{backdrop-filter:blur(3px)}
+.modal-content{transform:translateY(20px) scale(.96);transition:transform .3s var(--spring);border-radius:16px}
+.modal-overlay.show .modal-content{transform:none}
+.toast{padding-left:44px;overflow:hidden;min-width:220px;transition:all .35s var(--spring)}
+.toast::before{content:"ℹ️";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px}
+.toast.good::before{content:"✅"}.toast.bad::before{content:"⛔"}.toast.warning::before{content:"⚠️"}
+.toast::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+.toast.good::after{background:var(--success)}.toast.bad::after{background:var(--danger)}.toast.warning::after{background:var(--warning)}
+.toast.show::after{animation:toastBar 2.5s linear forwards}
+@keyframes toastBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.progress-bar{background:var(--grad-a);border-radius:3px}
+
+/* Transisi tab */
+section[id^="tab-"]:not(.hidden){animation:tabIn2 .3s var(--ease)}
+@keyframes tabIn2{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Login */
+#loginGate{background:linear-gradient(135deg,#1f3d63,#4a7fbf 60%,#6fa3d8);overflow:hidden}
+#loginGate::before,#loginGate::after{content:"";position:absolute;width:520px;height:520px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.22),transparent 65%);animation:blobMove 14s ease-in-out infinite alternate}
+#loginGate::before{top:-140px;left:-120px}
+#loginGate::after{bottom:-180px;right:-140px;animation-delay:-6s;background:radial-gradient(circle,rgba(122,184,232,.45),transparent 65%)}
+@keyframes blobMove{from{transform:translate(0,0) scale(1)}to{transform:translate(70px,50px) scale(1.15)}}
+#loginGate .lg-card{position:relative;z-index:1;background:var(--glass);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.4);
+  transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .2s ease-out}
+#loginGate h2{font-weight:800}
+
+/* Palet perintah Ctrl+K */
+#cmdk{position:fixed;inset:0;z-index:100000;display:none;align-items:flex-start;justify-content:center;padding-top:14vh;background:rgba(15,25,40,.45);backdrop-filter:blur(3px)}
+#cmdk.show{display:flex}
+#cmdk .box{width:min(520px,92vw);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--sh-3);overflow:hidden;animation:resultIn .25s var(--spring)}
+#cmdk input{border:0!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;padding:16px 18px;font-size:15px;box-shadow:none!important;font-family:var(--font-sans)}
+#cmdk .list{max-height:320px;overflow-y:auto;padding:6px}
+#cmdk .it{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13.5px;color:var(--text-main)}
+#cmdk .it.on,#cmdk .it:hover{background:var(--accent-dim);color:var(--accent)}
+#cmdk .it .ico{width:26px;height:26px;flex:0 0 26px;padding:4px;border-radius:8px;background:var(--accent-dim)}
+#cmdk .ft{padding:8px 14px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border)}
+
+/* Hemat daya & aksesibilitas */
+html.tab-hidden *,html.tab-hidden *::before,html.tab-hidden *::after{animation-play-state:paused!important}
+@media (hover:none){
+  .card:hover,.nav-item:hover{transform:none!important}
+  .shell-bar::after,#loginGate::before,#loginGate::after{animation:none}
+  #loginGate .lg-card{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+@media print{.shell-bar::after,.stat-card::after,.card::before{display:none}}
+</style>
+<style id="ccDiffCss">
+  #ccDiffWrap[hidden]{display:none !important}
+  .ccd{padding:16px 20px; margin-top:16px}
+  .ccd-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:6px}
+  .ccd-actions{display:flex; align-items:center; gap:12px}
+  .ccd-chk{font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none}
+  .ccd-kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:10px; margin:12px 0 4px}
+  .ccd-kpi{border:1px solid var(--border); border-radius:8px; padding:10px 12px; background:var(--bg-card); border-bottom:3px solid var(--border-light); min-width:0}
+  .ccd-kpi b{display:block; font-size:22px; font-family:var(--font-mono); line-height:1.25}
+  .ccd-kpi span{font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--text-muted); font-weight:700}
+  .ccd-kpi small{display:block; font-size:11px; color:var(--text-muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .ccd-kpi.bad{border-bottom-color:var(--danger)} .ccd-kpi.bad b{color:var(--danger)}
+  .ccd-kpi.warn{border-bottom-color:var(--warning)} .ccd-kpi.warn b{color:var(--warning)}
+  .ccd-kpi.ok{border-bottom-color:var(--success)} .ccd-kpi.ok b{color:var(--success)}
+  .ccd-sub{margin:18px 0 8px; font-size:13px; color:var(--text-main)}
+  .ccd th.num,.ccd td.num{text-align:right; font-family:var(--font-mono)}
+  .ccd .neg{color:var(--danger); font-weight:700} .ccd .pos{color:var(--success); font-weight:700}
+  .ccd tr.lost td{background:var(--danger-dim)}
+</style>
 </head>
 <body>
 
@@ -406,15 +725,18 @@
 <div id="loginGate">
   <div class="lg-card">
     <h2>INVENTORY<span style="color:var(--accent,#5b9bd5)">WMS</span></h2>
-    <div class="lg-sub">Pilih peran untuk melanjutkan</div>
-    <button class="lg-btn" id="lgAdmin"><span class="lg-ico">🔐</span><span>Admin<small></small></span></button>
-    <div id="lgPassRow">
-      <input type="password" id="lgPass" placeholder="Password Administrator" autocomplete="off">
+    <div class="lg-sub">Masuk dengan akun Anda</div>
+    <div style="font-size:10px; opacity:.5; margin:-14px 0 14px;">Versi 19 Okt 2026 · akun tersinkron cloud</div>
+    <div id="lgPassRow" style="display:block;">
+      <input type="text" id="lgUser" placeholder="Nama pengguna" autocomplete="username" style="width:100%; box-sizing:border-box; padding:11px; border:1px solid var(--border,#d5dbe3); border-radius:8px; font-size:14px; margin-bottom:8px;">
+      <input type="password" id="lgPass" placeholder="Password" autocomplete="current-password">
       <div id="lgErr"></div>
-      <button class="btn btn-accent" id="lgPassGo" style="width:100%;">Masuk sebagai Admin</button>
+      <button class="btn btn-accent" id="lgPassGo" style="width:100%;">Masuk</button>
     </div>
+    <div style="font-size:11px; opacity:.6; margin:16px 0 8px; text-align:center;">Tanpa akun (hanya lihat, tercatat sebagai Tamu)</div>
     <button class="lg-btn" id="lgDash"><span class="lg-ico">🖥️</span><span>Dashboard Report<small></small></span></button>
     <button class="lg-btn" id="lgSearch"><span class="lg-ico">🔎</span><span>Pencarian Barang<small></small></span></button>
+    <div style="text-align:center; margin-top:6px;"><a href="#" id="lgCloudCfg" style="font-size:11px; opacity:.65; color:inherit;" onclick="event.preventDefault(); document.getElementById('btnCloudSettings').click();">⚙️ Atur koneksi cloud</a></div>
   </div>
 </div>
 <div class="shell-bar">
@@ -487,6 +809,13 @@
         <div class="nav-group-title">Utilitas <span>▼</span></div>
         <div class="nav-group-items">
           <button class="nav-item" id="navQRCode">🔳 Buat Barcode QR</button>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Pengaturan <span>▼</span></div>
+        <div class="nav-group-items">
+          <button class="nav-item" id="navUsers">👥 Kelola User</button>
         </div>
       </div>
 
@@ -592,7 +921,7 @@
                 <input id="binInput" class="bin-input input-sm" type="text" placeholder="Lokasi Bin (Opsional)" autocomplete="off" style="margin-bottom: 0; flex: 1;">
                 <input id="docNoInput" class="input-sm" type="text" placeholder="No. Dokumen Inbound" autocomplete="off" style="flex: 1;">
               </div>
-              <input id="scanInput" class="scan-input" type="text" placeholder="Tembak barcode..." autocomplete="off" autofocus>
+              <input id="scanInput" class="scan-input" type="text" placeholder="Tembak barcode SKU / RFID..." autocomplete="off" autofocus>
               <div class="hint" style="margin-top:10px;">Item masuk ke Staging dulu (belum tersimpan ke Data Induk). Klik "🚀 Eksekusi Inbound" untuk menyimpan semuanya sekaligus.</div>
               <div id="scanResult"></div>
             </div>
@@ -662,17 +991,19 @@
           <div style="display: flex; flex-direction: column;">
             <div class="card" style="margin: 0; flex: 1;">
               <h3 class="card-header">Pemindaian OUTBOUND (Keluar)</h3>
-              <input id="outBinInput" class="bin-input input-sm" type="text" placeholder="Target Bin Barang Keluar (Wajib)" autocomplete="off">
+              <input id="outBinInput" class="bin-input input-sm" type="text" placeholder="Target Bin Barang Keluar (Wajib untuk SKU, opsional untuk RFID)" autocomplete="off">
               <input id="outRemarkInput" class="bin-input input-sm" type="text" placeholder="Remark / Catatan (Cth: SO-999)" autocomplete="off">
-              <input id="outScanInput" class="scan-input" type="text" placeholder="Tembak barcode keluar..." autocomplete="off">
+              <input id="outScanInput" class="scan-input" type="text" placeholder="Tembak barcode SKU / RFID keluar..." autocomplete="off">
               <div id="outScanResult"></div>
             </div>
-            <div class="card" id="salesUploadCard" style="margin: 12px 0 0 0;">
-              <h3 class="card-header">📦 Upload Data Sales (Potong Stok via RFID)</h3>
-              <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px; line-height:1.45;">Upload Excel report sales. Tiap <b>RFID Code</b> dicari di Data Induk, lalu unit itu dipotong dari bin tempat ia tersimpan. Ada pratinjau dulu sebelum stok dipotong.</div>
-              <input type="file" id="salesFile" accept=".xlsx,.xls,.csv" style="display:none;">
-              <button class="btn btn-accent" id="btnSalesPick" style="width:100%;">📂 Pilih File Sales &amp; Pratinjau</button>
-              <div id="salesPreview" style="margin-top:10px;"></div>
+            <div class="card" id="outBulkCard" style="margin: 12px 0 0 0;">
+              <h3 class="card-header">📤 Upload Outbound Massal (RFID atau Bin + SKU)</h3>
+              <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px; line-height:1.45;">Kolom Excel: <b>BIN, SKU, RFID</b> (satu baris = 1 unit keluar). Bila <b>RFID diisi</b>, unit itu dipotong dari bin tempat ia tersimpan. Bila <b>RFID kosong</b>, stok tetap terpotong asalkan <b>bin yang ditunjuk berisi SKU tersebut</b>. Remark diambil dari kolom Remark di atas. Ada pratinjau dulu sebelum stok dipotong.</div>
+              <input type="file" id="outBulkFile" accept=".xlsx,.xls,.csv" style="display:none;">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-accent" id="btnOutBulkPick" style="flex:1; min-width:180px;">📂 Pilih File Outbound &amp; Pratinjau</button>
+              </div>
+              <div id="outBulkPreview" style="margin-top:10px;"></div>
             </div>
           </div>
 
@@ -738,7 +1069,7 @@
             <div class="card" style="margin: 0; flex: 1;">
               <h3 class="card-header">Pemindaian Cycle Count (Staging)</h3>
               <input id="ccBinInput" class="bin-input input-sm" type="text" placeholder="Target Bin Cycle Count (Wajib)" autocomplete="off">
-              <input id="ccScanInput" class="scan-input" type="text" placeholder="Tembak barcode..." autocomplete="off">
+              <input id="ccScanInput" class="scan-input" type="text" placeholder="Tembak barcode SKU / RFID..." autocomplete="off">
               <div id="ccScanResult"></div>
             </div>
           </div>
@@ -761,6 +1092,36 @@
             </div>
           </div>
         </div>
+        </div>
+      
+        <div id="ccDiffWrap" class="card ccd" hidden>
+          <div class="ccd-head">
+            <h3 class="card-header" id="ccDiffTitle" style="margin:0; border:0; padding:0;">Selisih vs Stok Sistem</h3>
+            <div class="ccd-actions">
+              <label class="ccd-chk"><input type="checkbox" id="ccDiffShowOk"> Tampilkan yang sesuai</label>
+              <button class="btn btn-ghost btn-sm" id="ccDiffExport">⬇ Export CSV</button>
+            </div>
+          </div>
+          <div id="ccDiffHint" class="hint"></div>
+          <div id="ccDiffKpi" class="ccd-kpis"></div>
+
+          <h4 class="ccd-sub">Ringkasan per Bin</h4>
+          <div class="scroll-table"><table>
+            <thead><tr><th>Bin</th><th class="num">Stok Sistem</th><th class="num">Hasil Hitung</th><th class="num">Selisih</th><th class="num">SKU Hilang</th><th class="num">Unit Hilang</th></tr></thead>
+            <tbody id="ccDiffBins"></tbody>
+          </table></div>
+
+          <h4 class="ccd-sub">SKU yang Hilang <span id="ccDiffLostCount" class="hint"></span></h4>
+          <div class="scroll-table" style="max-height:260px;"><table>
+            <thead><tr><th>Bin</th><th>SKU</th><th>Nama Barang</th><th class="num">Unit Hilang</th><th>UID Hilang</th></tr></thead>
+            <tbody id="ccDiffLost"></tbody>
+          </table></div>
+
+          <h4 class="ccd-sub">Rincian Selisih per SKU</h4>
+          <div class="scroll-table" style="max-height:340px;"><table>
+            <thead><tr><th>Bin</th><th>SKU</th><th>Nama Barang</th><th class="num">Sistem</th><th class="num">Hitung</th><th class="num">Selisih</th><th>Status</th><th>Catatan</th></tr></thead>
+            <tbody id="ccDiffRows"></tbody>
+          </table></div>
         </div>
       </section>
 
@@ -878,7 +1239,7 @@
                 <input id="tfBinFromInput" class="bin-input input-sm" type="text" placeholder="Bin Asal (Wajib)" autocomplete="off" style="margin-bottom: 0; flex: 1;">
                 <input id="tfBinToInput" class="bin-input input-sm" type="text" placeholder="Bin Tujuan (Wajib)" autocomplete="off" style="margin-bottom: 0; flex: 1;">
               </div>
-              <input id="tfScanInput" class="scan-input" type="text" placeholder="Tembak barcode..." autocomplete="off">
+              <input id="tfScanInput" class="scan-input" type="text" placeholder="Tembak barcode SKU / RFID..." autocomplete="off">
               <div class="hint" style="margin-top:10px;">Item akan ditampung dahulu di Staging. Stok baru berpindah dari Bin Asal ke Bin Tujuan di Data Induk setelah klik "Eksekusi Transfer".</div>
               <div id="tfScanResult"></div>
             </div>
@@ -1002,6 +1363,19 @@
                 <span class="num" id="statAllScanQty" style="font-size: 18px; font-weight: 800; color: var(--accent);">0</span>
              </div>
              
+             <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 260px; max-width: 520px;">
+                <select id="allScanSearchField" class="input-sm" style="width: 110px;" title="Cari berdasarkan">
+                  <option value="bin">Bin</option>
+                  <option value="sku">SKU</option>
+                  <option value="uid">UID / RFID</option>
+                  <option value="nama">Nama Barang</option>
+                  <option value="all">Semua</option>
+                </select>
+                <input type="text" id="allScanSearch" class="input-sm" placeholder="🔍 Cari Bin, contoh: F-1-00005" autocomplete="off" style="flex: 1; min-width: 120px;">
+                <button class="btn btn-ghost btn-sm" id="allScanSearchClear" title="Hapus pencarian">✕</button>
+                <span id="allScanFilterInfo" class="hint" style="white-space: nowrap; font-weight: bold;"></span>
+             </div>
+
              <div style="display: flex; gap: 8px;">
                 <button class="btn btn-warning btn-sm" id="btnManageBin" title="Manajemen Status Bin">🚫 Bin</button>
                 <input type="file" id="fileUploadScan" accept=".xlsx,.xls,.csv" class="hidden">
@@ -1013,9 +1387,9 @@
           
           <div class="scroll-table" style="flex: 1;">
             <table>
-              <thead><tr><th>Waktu Masuk</th><th>Bin</th><th>SKU</th><th>UID</th><th>Nama Barang</th><th>Remark</th><th style="text-align:center;">Aksi</th></tr></thead>
+              <thead><tr><th>Waktu Masuk</th><th>Bin</th><th>SKU</th><th>UID</th><th>Nama Barang</th><th>Remark</th><th>Oleh</th><th style="text-align:center;">Aksi</th></tr></thead>
               <tbody id="allScanBody">
-                <tr><td colspan="7" class="hint" style="text-align:center;">Memuat data...</td></tr>
+                <tr><td colspan="8" class="hint" style="text-align:center;">Memuat data...</td></tr>
               </tbody>
             </table>
             <div id="allScanLoadMoreContainer" style="text-align:center; padding: 12px; display:none;">
@@ -1031,7 +1405,7 @@
           <h3 class="card-header" style="margin-bottom: 10px;">Tracking Movement (IN/OUT/SALES/RETUR)</h3>
           
           <div class="toolbar-row">
-            <input type="text" id="moveSearchSku" class="input-sm toolbar-search" placeholder="🔍 Cari SKU / Keyword..." autocomplete="off">
+            <input type="text" id="moveSearchSku" class="input-sm toolbar-search" placeholder="🔍 Cari SKU / RFID / Keyword..." autocomplete="off">
             <button class="btn btn-ghost btn-sm" id="btnSkuSummary" title="Lihat Ringkasan Total IN/OUT/RETUR/SALES untuk SKU ini">📊 Summary</button>
             <input type="date" id="moveStartDate" class="input-sm toolbar-date" title="Dari Tanggal">
             <span class="toolbar-sep">–</span>
@@ -1047,9 +1421,9 @@
           
           <div class="scroll-table fill">
             <table>
-              <thead><tr><th>Waktu Eksekusi</th><th>Tipe</th><th>Bin Info</th><th>SKU</th><th>Keterangan / Nama</th></tr></thead>
+              <thead><tr><th>Waktu Eksekusi</th><th>Tipe</th><th>Bin Info</th><th>SKU</th><th>RFID</th><th>Keterangan / Nama</th><th>Oleh</th></tr></thead>
               <tbody id="movementBody">
-                <tr><td colspan="5" class="hint" style="text-align:center;">Memuat data...</td></tr>
+                <tr><td colspan="6" class="hint" style="text-align:center;">Memuat data...</td></tr>
               </tbody>
             </table>
             <div id="moveLoadMoreContainer" style="text-align:center; padding: 12px; display:none;">
@@ -1079,9 +1453,9 @@
           
           <div class="scroll-table fill">
             <table>
-              <thead><tr><th>Waktu Eksekusi</th><th>Tipe</th><th>Bin Info</th><th>SKU</th><th>Keterangan</th></tr></thead>
+              <thead><tr><th>Waktu Eksekusi</th><th>Tipe</th><th>Bin Info</th><th>SKU</th><th>Keterangan</th><th>Oleh</th></tr></thead>
               <tbody id="cctfBody">
-                <tr><td colspan="5" class="hint" style="text-align:center;">Memuat data...</td></tr>
+                <tr><td colspan="6" class="hint" style="text-align:center;">Memuat data...</td></tr>
               </tbody>
             </table>
             <div id="cctfLoadMoreContainer" style="text-align:center; padding: 12px; display:none;">
@@ -1458,6 +1832,50 @@
       </section>
 
       <!-- ============================ TAB: BUAT BARCODE QR ============================ -->
+      <section id="tab-users" class="hidden">
+        <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+
+          <div class="hint" style="background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius); padding:12px 14px;">
+            Setiap orang punya akun sendiri. Semua transaksi (Inbound, Outbound, Cycle Count, Transfer, Opname, Upload, Hapus)
+            otomatis dicatat nama pelakunya dan tampil di kolom <b>Oleh</b> pada Data Induk, Tracking Movement, dan History CC &amp; Transfer.
+            Daftar akun <b>disinkronkan ke cloud</b>: akun baru, perubahan password, dan penghapusan akun otomatis berlaku di semua komputer yang tersambung (cukup beberapa detik). Komputer harus sudah mengatur koneksi cloud (⚙️). Akun bertanda <b>tertanam</b> berasal dari file aplikasi; jika password-nya diubah di sini, password dari cloud yang dipakai. <b>Ekspor/Impor</b> tetap tersedia sebagai cadangan.
+          </div>
+
+          <div class="card" style="margin: 0;">
+            <h3 class="card-header">Tambah / Ubah Akun</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+              <input type="text" id="usrName" class="input-sm" placeholder="Nama pengguna (unik)" autocomplete="off" style="flex:1; min-width:160px;">
+              <input type="password" id="usrPass" class="input-sm" placeholder="Password (min. 4 karakter)" autocomplete="new-password" style="flex:1; min-width:160px;">
+              <select id="usrRole" class="input-sm" style="min-width:150px;">
+                <option value="operator">Operator (gudang)</option>
+                <option value="admin">Admin</option>
+                <option value="dashboard">Dashboard saja</option>
+                <option value="search">Pencarian saja</option>
+              </select>
+              <button class="btn btn-accent" id="usrSave">Simpan</button>
+            </div>
+            <div class="hint" style="margin-top:10px;">Nama yang sudah ada akan diperbarui (password &amp; peran diganti). Operator tidak bisa membuka Data Induk, Master, Mapping RFID, dan Kelola User.</div>
+          </div>
+
+          <div class="card" style="margin: 0;">
+            <h3 class="card-header">Daftar Akun</h3>
+            <div style="margin-bottom: 10px;"><button class="btn btn-ghost btn-sm" id="usrTogglePw">👁 Tampilkan password</button></div>
+            <div class="scroll-table" style="max-height: 360px;">
+              <table>
+                <thead><tr><th>Nama</th><th>Peran</th><th>Password saat ini (bisa diedit)</th><th style="text-align:center;">Aksi</th></tr></thead>
+                <tbody id="usrBody"></tbody>
+              </table>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+              <button class="btn" id="usrExport">⬇ Ekspor Akun</button>
+              <label class="btn" style="cursor:pointer;">⬆ Impor Akun<input type="file" id="usrImport" accept=".json" style="display:none;"></label>
+            </div>
+            <div class="hint" style="margin-top:10px;">File ekspor berisi password asli. Simpan dengan hati-hati dan jangan dibagikan.</div>
+          </div>
+
+        </div>
+      </section>
+
       <section id="tab-qrcode" class="hidden">
         <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
 
@@ -1568,7 +1986,7 @@ function parseIdDate(dateStr) {
    URL & Token diatur lewat tombol ⚙️ di shell-bar (localStorage, per browser).
    ============================================================ */
 const COL_MASTER = "master"; // nama tabel/sheet master di backend GAS
-const SYNC_TABLES = ["master", "rfidmap", "scanlog", "movementlog", "opname"];
+const SYNC_TABLES = ["master", "rfidmap", "scanlog", "movementlog", "opname", "masterbin", "deactbin"];
 
 // Ambil hanya "https://xxxx.supabase.co" dari teks apa pun yang ditempel (buang /rest/v1/, spasi, dsb.)
 function sbBase_(u){
@@ -1577,7 +1995,158 @@ function sbBase_(u){
   try { return new URL(u).origin; } catch(e){ return u.replace(/\/+$/, ""); }
 }
 // Password Administrator (dipakai login Admin & semua konfirmasi admin). Ganti di sini saja.
-const ADMIN_PASSWORD = "z5z563";
+const ADMIN_PASSWORD_HASH = "03eccd15e4946e2e3f50170ea4dfdebbdea826b4c97e06353134ef333d8a71a4"; // hanya hash; password asli tidak disimpan di source
+
+/* ============================================================
+   USER & AUDIT: akun per orang. Setiap transaksi dicap nama pelakunya (field "by").
+   Daftar akun disimpan di browser perangkat ini (localStorage) dan bisa diekspor/diimpor
+   ke perangkat lain dari menu Kelola User. Password disimpan sebagai hash (SHA-256), bukan teks asli.
+   ============================================================ */
+const USERS_LS_KEY = "wms_users_v1";
+function curUser_(){ try{ return JSON.parse(sessionStorage.getItem("wms_user") || "null"); }catch(e){ return null; } }
+function curBy_(){ const u = curUser_(); return (u && u.name) ? u.name : ""; }
+// AKUN TERTANAM: akun di daftar ini otomatis ada di SETIAP perangkat yang membuka file ini.
+// Format: { name: "Budi", hash: "<sha256>", pw: "password", role: "operator" }   (role: admin / operator / dashboard / search)
+// "pw" ditulis agar admin bisa melihat password saat ini di menu Kelola User. Artinya siapa pun yang membuka
+// source file ini bisa membacanya. Untuk menambah/mengubah akun tertanam secara permanen, edit daftar ini.
+const SEED_USERS = [
+  /*SEED_USERS_BEGIN*/
+  { name: "Erdinan", hash: "edff74a0727578edc4e5a1c41dbe2e25ea2a09d29d8390ada19714e2519aa59e", pw: "nadiaa123", role: "operator" },
+  { name: "Indra", hash: "ed02f388ce4125b8e35f9d79a4fba9150a68f742b17256f3e10152d87b38f140", pw: "surya1212", role: "operator" },
+  { name: "Outbound", hash: "526df9cdae29912d6c17a36b236947ba933fd434bce6e45a1614fc371c45ab89", pw: "34tQDP6G", role: "search" },
+  { name: "admin", hash: "821bae8ac928b9568087361322a0185847944bb1663c4d7eb0fa532ec974e88f", role: "admin" },
+  /*SEED_USERS_END*/
+];
+function getUsers_(){
+  let local = [];
+  try{ const x = JSON.parse(localStorage.getItem(USERS_LS_KEY) || "[]"); if(Array.isArray(x)) local = x; }catch(e){}
+  const byName = new Map(local.map(u => [String(u.name).toLowerCase(), u]));
+  const out = [];
+  SEED_USERS.forEach(sd => {
+    const key = String(sd.name).toLowerCase();
+    const ov = byName.get(key);
+    // Password yang diubah admin di perangkat ini menang atas password dari file (hanya di perangkat ini).
+    out.push(Object.assign({}, sd, ov ? { hash: ov.hash, pw: ov.pw, ov: true } : {}, { seed: true }));
+    byName.delete(key);
+  });
+  byName.forEach(u => out.push(u));
+  return out;
+}
+function saveUsers_(a){
+  const store = a.filter(u => !u.seed || u.ov).map(u => ({ name: u.name, hash: u.hash, pw: u.pw, role: u.role, created: u.created }));
+  localStorage.setItem(USERS_LS_KEY, JSON.stringify(store));
+  pushUsersDiff_(store); // kirim perubahan akun ke cloud supaya semua komputer ikut berubah
+}
+
+/* ============================================================
+   SINKRON AKUN KE CLOUD (Supabase)
+   Akun yang diubah/ditambah admin (termasuk password akun tertanam) disalin ke tabel cloud "masterbin"
+   dengan awalan "usr|" lewat jalur sinkron yang sama dengan data lain, sehingga TIDAK perlu mengubah
+   fungsi/tabel di server. localStorage (USERS_LS_KEY) hanyalah cache sinkron untuk layar login.
+   Urutan prioritas: akun tertanam di file < akun di cloud (hasil sinkron).
+   ============================================================ */
+const USR_PREFIX_ = "usr|";
+const USR_MIG_KEY_ = "wms_users_cloud_migrated_v1";
+const USR_ROLES_ = { admin:1, operator:1, dashboard:1, search:1 };
+function usrKey_(name){ return USR_PREFIX_ + String(name).trim().toLowerCase(); }
+function usrToRow_(u){ return { id: usrKey_(u.name), name: String(u.name), hash: String(u.hash), pw: u.pw ? String(u.pw) : "", role: u.role, created: u.created || "" }; }
+function usrRowValid_(r){ return r && typeof r.name === "string" && r.name.length > 0 && r.name.length <= 30 && /^[0-9a-f]{64}$/.test(String(r.hash)) && USR_ROLES_[r.role] === 1; }
+function idbGetUserRows_(){
+  return new Promise((resolve)=>{
+    try{
+      const req = idb.transaction("masterbin", "readonly").objectStore("masterbin").getAll();
+      req.onsuccess = ()=>{ const m = new Map(); (req.result || []).forEach(r => { if(r && String(r.id).startsWith(USR_PREFIX_)) m.set(String(r.id), r); }); resolve(m); };
+      req.onerror = ()=>resolve(new Map());
+    }catch(e){ resolve(new Map()); }
+  });
+}
+let usrPushChain_ = Promise.resolve();
+function pushUsersDiff_(store){
+  const rows = (store || []).filter(u => u && u.name && u.hash).map(usrToRow_);
+  usrPushChain_ = usrPushChain_.then(async () => {
+    if(!idb) return;
+    const old = await idbGetUserRows_();
+    const put = rows.filter(r => { const o = old.get(r.id); return !o || o.hash !== r.hash || o.pw !== r.pw || o.role !== r.role || o.name !== r.name; });
+    // Hapus di cloud hanya setelah migrasi awal selesai (supaya komputer baru tidak menghapus akun komputer lain).
+    const keep = new Set(rows.map(r => r.id));
+    const del = localStorage.getItem(USR_MIG_KEY_) === "1" ? [...old.keys()].filter(k => !keep.has(k)) : [];
+    if(put.length){ await idbRawPutMany_("masterbin", put); await idbEnqueueSync("masterbin", "put", put.map(r => r.id), put); }
+    if(del.length){ await idbRawDeleteMany_("masterbin", del); await idbEnqueueSync("masterbin", "del", del); }
+  }).catch(e => console.error("Gagal sinkron akun:", e));
+  return usrPushChain_;
+}
+// Bangun ulang cache akun (localStorage) dari data cloud yang sudah ditarik ke IndexedDB.
+async function reloadUsersFromIDB_(){
+  if(localStorage.getItem(USR_MIG_KEY_) !== "1") return;
+  const rows = [...(await idbGetUserRows_()).values()].filter(usrRowValid_);
+  const store = rows.map(r => ({ name: r.name, hash: r.hash, pw: r.pw || undefined, role: r.role, created: r.created || undefined }));
+  localStorage.setItem(USERS_LS_KEY, JSON.stringify(store));
+}
+// Setelah tarikan cloud pertama berhasil: kirim akun lokal yang BELUM ada di cloud (hanya menambah, tidak menimpa), lalu muat ulang cache.
+async function syncUsersAfterPull_(){
+  if(!idb) return;
+  if(localStorage.getItem(USR_MIG_KEY_) !== "1"){
+    let local = [];
+    try{ const x = JSON.parse(localStorage.getItem(USERS_LS_KEY) || "[]"); if(Array.isArray(x)) local = x; }catch(e){}
+    const old = await idbGetUserRows_();
+    const add = local.filter(u => u && u.name && u.hash && USR_ROLES_[u.role] === 1 && !old.has(usrKey_(u.name))).map(usrToRow_);
+    if(add.length){ await idbRawPutMany_("masterbin", add); await idbEnqueueSync("masterbin", "put", add.map(r => r.id), add); }
+    localStorage.setItem(USR_MIG_KEY_, "1");
+  }
+  await reloadUsersFromIDB_();
+}
+
+// SHA-256 murni JavaScript (hasil sama di semua perangkat/konteks, tidak bergantung pada HTTPS).
+function sha256Hex_(str){
+  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes = Array.from(new TextEncoder().encode(str));
+  const l = bytes.length;
+  bytes.push(0x80);
+  while(bytes.length % 64 !== 56) bytes.push(0);
+  const hi = Math.floor(l * 8 / 4294967296), lo = (l * 8) >>> 0;
+  bytes.push((hi>>>24)&255,(hi>>>16)&255,(hi>>>8)&255,hi&255,(lo>>>24)&255,(lo>>>16)&255,(lo>>>8)&255,lo&255);
+  const H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const w = new Uint32Array(64);
+  const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+  for(let o = 0; o < bytes.length; o += 64){
+    for(let i = 0; i < 16; i++) w[i] = (bytes[o+i*4]<<24) | (bytes[o+i*4+1]<<16) | (bytes[o+i*4+2]<<8) | bytes[o+i*4+3];
+    for(let i = 16; i < 64; i++){
+      const s0 = rotr(w[i-15],7) ^ rotr(w[i-15],18) ^ (w[i-15]>>>3);
+      const s1 = rotr(w[i-2],17) ^ rotr(w[i-2],19) ^ (w[i-2]>>>10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) >>> 0;
+    }
+    let [a,b,c,d,e,f,g,h] = H;
+    for(let i = 0; i < 64; i++){
+      const S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25);
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+      const S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0]=(H[0]+a)>>>0; H[1]=(H[1]+b)>>>0; H[2]=(H[2]+c)>>>0; H[3]=(H[3]+d)>>>0;
+    H[4]=(H[4]+e)>>>0; H[5]=(H[5]+f)>>>0; H[6]=(H[6]+g)>>>0; H[7]=(H[7]+h)>>>0;
+  }
+  return H.map(x => x.toString(16).padStart(8, "0")).join("");
+}
+function hashPw_(name, pw){ return sha256Hex_("wms|" + String(name).trim().toLowerCase() + "|" + String(pw)); }
+// Password administrator tertanam di file ini (hash saja): login tidak bergantung pada data browser/localStorage.
+const ADMIN_PASSWORD_HASHES = [ADMIN_PASSWORD_HASH, "821bae8ac928b9568087361322a0185847944bb1663c4d7eb0fa532ec974e88f"];
+function isAdminPw_(p){ return typeof p === "string" && ADMIN_PASSWORD_HASHES.indexOf(hashPw_("admin", p)) !== -1; }
+
+/* ---- Sanitasi data masuk: cegah penyuntikan kode lewat SKU/Bin/UID/nama yang berisi karakter berbahaya ----
+   SKU, Bin, UID, dst. dipakai di atribut HTML dan string JavaScript pada tombol tabel (onclick="...('${sku}')"),
+   jadi tanda kutip, backslash, <, > dan karakter kontrol dibuang dari field identitas. Field teks bebas
+   (nama, remark) hanya dinetralkan agar isinya tetap terbaca. */
+const STRICT_FIELDS_ = ["sku","bin","uid","code","docNo","by","ref_id","fromBin","toBin","returChannel"];
+const SOFT_FIELDS_ = ["nama","remark"];
+function cleanRec_(o){
+  if(!o || typeof o !== "object") return o;
+  for(const k of STRICT_FIELDS_){ if(typeof o[k] === "string"){ const c = o[k].replace(/[<>"'`\\\u0000-\u001f\u007f]/g, ""); if(c !== o[k]) o[k] = c; } }
+  for(const k of SOFT_FIELDS_){ if(typeof o[k] === "string"){ const c = o[k].replace(/</g, "\u2039").replace(/>/g, "\u203a").replace(/"/g, "\u2033").replace(/[\u0000-\u001f\u007f]/g, " "); if(c !== o[k]) o[k] = c; } }
+  return o;
+}
 const CLOUD_CFG = {
   url: localStorage.getItem("gas_url") || "",
   token: localStorage.getItem("gas_token") || "",
@@ -1669,7 +2238,7 @@ async function cloudApi(action, payload, signal, opts){
 
 let idb;
 const IDB_NAME = "scan_wms_db";
-const IDB_VERSION = 6; // v6: tambah object store "syncqueue" untuk antrean sinkron ke Supabase
+const IDB_VERSION = 7; // v6: antrean sinkron; v7: daftar Bin (masterbin, deactbin) ikut sinkron antar komputer
 
 function openIDB(){
   return new Promise((resolve, reject)=>{
@@ -1682,6 +2251,8 @@ function openIDB(){
       if(!database.objectStoreNames.contains("opname")) database.createObjectStore("opname", { keyPath: "id" });
       if(!database.objectStoreNames.contains("rfidmap")) database.createObjectStore("rfidmap", { keyPath: "code" });
       if(!database.objectStoreNames.contains("syncqueue")) database.createObjectStore("syncqueue", { keyPath: "qid", autoIncrement: true });
+      if(!database.objectStoreNames.contains("masterbin")) database.createObjectStore("masterbin", { keyPath: "id" });
+      if(!database.objectStoreNames.contains("deactbin")) database.createObjectStore("deactbin", { keyPath: "id" });
     };
     req.onsuccess = (e)=>resolve(e.target.result);
     req.onerror = (e)=>reject(e);
@@ -1756,7 +2327,7 @@ function idbClearSyncQueueAll(){
 function idbRawPut(table, obj){
   return new Promise((resolve)=>{
     const tx = idb.transaction(table, "readwrite");
-    tx.objectStore(table).put(obj);
+    tx.objectStore(table).put(cleanRec_(obj));
     tx.oncomplete = ()=>resolve();
   });
 }
@@ -1773,6 +2344,73 @@ function idbClearLocalOnly_(table){
     tx.objectStore(table).clear();
     tx.oncomplete = ()=>resolve();
   });
+}
+
+/* ============================================================
+   SINKRON DAFTAR BIN (Bin terdaftar & Bin nonaktif)
+   Sebelumnya disimpan hanya di localStorage tiap browser, sehingga komputer lain
+   tidak tahu Bin yang sudah kosong ("Bin Kosong" selalu 0). Sekarang disalin ke
+   tabel cloud masterbin & deactbin lewat jalur sinkron yang sama dengan data lain.
+   ============================================================ */
+function idbGetAllKeys_(table){
+  return new Promise((resolve)=>{
+    try{
+      const req = idb.transaction(table, "readonly").objectStore(table).getAllKeys();
+      req.onsuccess = ()=>resolve(req.result || []);
+      req.onerror = ()=>resolve([]);
+    }catch(e){ resolve([]); }
+  });
+}
+function idbRawPutMany_(table, objs){
+  return new Promise((resolve)=>{
+    if(!objs.length) return resolve();
+    const tx = idb.transaction(table, "readwrite");
+    const st = tx.objectStore(table);
+    objs.forEach(o => st.put(cleanRec_(o)));
+    tx.oncomplete = tx.onerror = tx.onabort = ()=>resolve();
+  });
+}
+function idbRawDeleteMany_(table, keys){
+  return new Promise((resolve)=>{
+    if(!keys.length) return resolve();
+    const tx = idb.transaction(table, "readwrite");
+    const st = tx.objectStore(table);
+    keys.forEach(k => st.delete(k));
+    tx.oncomplete = tx.onerror = tx.onabort = ()=>resolve();
+  });
+}
+// Bandingkan daftar di layar dengan salinan lokal, lalu kirim selisihnya ke antrean sinkron.
+let binPushChain_ = Promise.resolve();
+function pushBinListDiff_(table, list){
+  const snapshot = Array.from(list || []).map(String);
+  binPushChain_ = binPushChain_.then(async () => {
+    if(!idb) return;
+    const old = new Set((await idbGetAllKeys_(table)).map(String).filter(k => !k.startsWith(USR_PREFIX_)));
+    const now = new Set(snapshot);
+    const add = [...now].filter(x => !old.has(x));
+    const del = [...old].filter(x => !now.has(x));
+    if(add.length){ await idbRawPutMany_(table, add.map(id => ({ id }))); await idbEnqueueSync(table, "put", add, add.map(id => ({ id }))); }
+    if(del.length){ await idbRawDeleteMany_(table, del); await idbEnqueueSync(table, "del", del); }
+  }).catch(e => console.error("Gagal sinkron daftar Bin:", e));
+  return binPushChain_;
+}
+// Setelah data Bin baru datang dari cloud: perbarui daftar di memori & localStorage.
+async function reloadBinListsFromIDB_(){
+  const mb = (await idbGetAllKeys_("masterbin")).map(String).filter(k => !k.startsWith(USR_PREFIX_));
+  const db = (await idbGetAllKeys_("deactbin")).map(String);
+  masterBins = mb;
+  deactivatedBins = db;
+  localStorage.setItem('masterBins', JSON.stringify(masterBins));
+  localStorage.setItem('deactivatedBins', JSON.stringify(deactivatedBins));
+  try{ refreshBinOverviewStats(); }catch(e){}
+  try{ await reloadUsersFromIDB_(); }catch(e){ console.warn("Gagal memuat akun dari cloud:", e); }
+}
+// Sekali per browser: kirim daftar Bin lokal yang sudah ada ke cloud (gabungan, tidak menimpa).
+async function migrateBinListsOnce_(){
+  if(localStorage.getItem("bins_migrated_v1") === "1") return;
+  await pushBinListDiff_("masterbin", masterBins);
+  await pushBinListDiff_("deactbin", deactivatedBins);
+  localStorage.setItem("bins_migrated_v1", "1");
 }
 
 let syncBusy = false;
@@ -1941,7 +2579,7 @@ function idbApplyPulledRows_(table, rows){
     const tx = idb.transaction(table, "readwrite");
     const store = tx.objectStore(table);
     rows.forEach(row => {
-      try{ if(row.d) store.delete(row.k); else store.put(row.v); }
+      try{ if(row.d) store.delete(row.k); else store.put(cleanRec_(row.v)); }
       catch(rowErr){ console.warn("Baris hasil tarik dilewati:", table, rowErr); } // satu baris rusak tidak boleh menghentikan semuanya
     });
     tx.oncomplete = ()=>resolve();
@@ -1994,12 +2632,12 @@ async function pullAllFromCloud(showToast){
         };
       });
       const res = await cloudApi("pullAll", { cursors, limit: 5000 });
-      let anyMore = false, roundChanged = false, rfidChanged = false;
+      let anyMore = false, roundChanged = false, rfidChanged = false, binsChanged = false;
       for(const t of SYNC_TABLES){
         const r = res.results && res.results[t];
         if(!r) continue;
-        if(r.reset){ await idbClearLocalOnly_(t); roundChanged = true; if(t === "rfidmap") rfidChanged = true; }
-        if(r.rows && r.rows.length){ await idbApplyPulledRows_(t, r.rows); roundChanged = true; if(t === "rfidmap") rfidChanged = true; }
+        if(r.reset){ await idbClearLocalOnly_(t); roundChanged = true; if(t === "rfidmap") rfidChanged = true; if(t === "masterbin" || t === "deactbin") binsChanged = true; }
+        if(r.rows && r.rows.length){ await idbApplyPulledRows_(t, r.rows); roundChanged = true; if(t === "rfidmap") rfidChanged = true; if(t === "masterbin" || t === "deactbin") binsChanged = true; }
         localStorage.setItem("sync_since_" + t, String(r.next));
         localStorage.setItem("sync_epoch_" + t, r.epoch);
         if(r.more) anyMore = true;
@@ -2007,10 +2645,12 @@ async function pullAllFromCloud(showToast){
       // Hanya muat ulang cache & tampilan kalau memang ada data baru. Sebelumnya ini dijalankan di
       // SETIAP siklus (getAll seluruh tabel RFID + render ulang dashboard/grafik), membuat UI berat.
       if(rfidChanged) await primeRfidCache();
+      if(binsChanged) await reloadBinListsFromIDB_();
       if(roundChanged) refreshCurrentTabView();
       if(!anyMore) break; // masih ada halaman lanjutan (data banyak/pertama kali) -> ulangi
     }
     syncState.pullErr = null; syncState.lastPull = Date.now(); pullFailCount = 0;
+    if(localStorage.getItem(USR_MIG_KEY_) !== "1"){ try{ await syncUsersAfterPull_(); }catch(e){ console.warn("Migrasi akun ke cloud gagal:", e); } }
   }catch(err){
     pullFailCount++;
     console.error("Gagal menarik data cloud:", err);
@@ -2098,7 +2738,7 @@ function idbPutRfidBulk(list){
       if(!slice.length){ idbEnqueueSync("rfidmap", "put", list.map(x=>x.code), list).then(resolve); return; }
       const tx = idb.transaction("rfidmap", "readwrite");
       const store = tx.objectStore("rfidmap");
-      slice.forEach(item => store.put(item));
+      slice.forEach(item => store.put(cleanRec_(item)));
       tx.oncomplete = ()=>{ i += CHUNK; nextChunk(); };
       tx.onerror = ()=>reject(tx.error);
     }
@@ -2139,7 +2779,13 @@ async function primeRfidCache(){
 
 // Deteksi apakah hasil scan berbentuk QR RFID {"RFID_CODE":"xxxx"} (bukan barcode SKU biasa).
 function extractRfidCode(raw){
-  const m = String(raw || '').match(/\{\s*["']?RFID_CODE["']?\s*:\s*"([^"]+)"\s*\}/i);
+  // Scanner/layout keyboard tertentu mengetik tanda kutip "pintar" (“ ” ‘ ’): samakan dulu jadi kutip biasa.
+  const s = String(raw || '')
+    .replace(/[\u201C\u201D\u201E\u201F\u2033\uFF02]/g, '"')
+    .replace(/[\u2018\u2019\u201B\u2032\uFF07]/g, "'")
+    .replace(/[\u200B-\u200D\uFEFF]/g, '');
+  let m = s.match(/\{\s*["']?RFID_CODE["']?\s*:\s*["']([^"']+)["']\s*\}/i);
+  if(!m) m = s.match(/RFID_CODE\W{0,8}([A-Za-z0-9_-]+)/i); // cadangan: format agak berbeda
   return m ? m[1].trim().toUpperCase() : null;
 }
 
@@ -2148,7 +2794,16 @@ function extractRfidCode(raw){
 // yang discan barcode SKU lama (tetap berjalan seperti biasa, tanpa perubahan).
 // Return null berarti dibatalkan (RFID belum terdaftar dan operator tidak mengisi SKU).
 async function resolveScanValue(raw, focusEl){
-  const code = extractRfidCode(raw);
+  let code = extractRfidCode(raw);
+  if(!code){
+    // EPC/UID mentah dari RFID reader (tanpa format JSON): kenali kalau sudah terdaftar di tabel pemetaan,
+    // atau kalau bentuknya hex panjang (>=16 karakter) dan bukan SKU yang dikenal di Master.
+    const cand = String(raw || '').trim().toUpperCase();
+    if(cand){
+      if(RFID_MAP[cand] || await idbGetRfid(cand)) code = cand;
+      else if(/^[0-9A-F]{16,}$/.test(cand) && !(await idbGetMaster(String(raw).trim()))) code = cand;
+    }
+  }
   if(!code) return { sku: raw, uid: null };
 
   let mapped = RFID_MAP[code];
@@ -2286,7 +2941,7 @@ document.getElementById("fileRfidMap").addEventListener("change", (e) => {
 
 document.getElementById("btnClearRfidMap").onclick = async () => {
   const pass = prompt("Masukkan Password Administrator untuk menghapus seluruh pemetaan RFID:");
-  if(pass !== ADMIN_PASSWORD){
+  if(!isAdminPw_(pass)){
     if(pass !== null) toast("Password salah! Akses ditolak.", "bad");
     return;
   }
@@ -2302,7 +2957,7 @@ function idbPutMasterBulk(items){
   return new Promise((resolve)=>{
     const tx = idb.transaction("master", "readwrite");
     const store = tx.objectStore("master");
-    items.forEach(it=>store.put(it));
+    items.forEach(it=>store.put(cleanRec_(it)));
     tx.oncomplete = ()=>{ idbEnqueueSync("master", "put", items.map(x=>x.sku), items).then(resolve); };
   });
 }
@@ -2351,6 +3006,8 @@ function idbClearMaster(){
 }
 
 function idbAddScan(entry){
+  cleanRec_(entry);
+  if(!entry.by){ const b = curBy_(); if(b) entry.by = b; }
   return new Promise((resolve)=>{
     const tx = idb.transaction("scanlog", "readwrite");
     tx.objectStore("scanlog").put(entry);
@@ -2396,6 +3053,7 @@ function idbClearSession(){
 }
 
 function idbAddMovement(entry){
+  cleanRec_(entry);
   return new Promise((resolve)=>{
     const tx = idb.transaction("movementlog", "readwrite");
     tx.objectStore("movementlog").put(entry);
@@ -2408,6 +3066,7 @@ function idbAddMovement(entry){
 function idbAddScanBulk(list){
   return new Promise((resolve, reject)=>{
     if(!list || !list.length) return resolve();
+    { const b = curBy_(); if(b) list.forEach(x => { if(!x.by) x.by = b; }); }
     const CHUNK = 2000;
     let i = 0;
     function nextChunk(){
@@ -2415,7 +3074,7 @@ function idbAddScanBulk(list){
       if(!slice.length){ idbEnqueueSync("scanlog", "put", list.map(x=>x.id), list).then(resolve); return; }
       const tx = idb.transaction("scanlog", "readwrite");
       const store = tx.objectStore("scanlog");
-      slice.forEach(item => store.put(item));
+      slice.forEach(item => store.put(cleanRec_(item)));
       tx.oncomplete = ()=>{ i += CHUNK; nextChunk(); };
       tx.onerror = ()=>reject(tx.error);
     }
@@ -2425,6 +3084,7 @@ function idbAddScanBulk(list){
 function idbAddMovementBulk(list){
   return new Promise((resolve, reject)=>{
     if(!list || !list.length) return resolve();
+    { const b = curBy_(); if(b) list.forEach(x => { if(!x.by) x.by = b; }); }
     const CHUNK = 2000;
     let i = 0;
     function nextChunk(){
@@ -2432,7 +3092,7 @@ function idbAddMovementBulk(list){
       if(!slice.length){ idbEnqueueSync("movementlog", "put", list.map(x=>x.id), list).then(resolve); return; }
       const tx = idb.transaction("movementlog", "readwrite");
       const store = tx.objectStore("movementlog");
-      slice.forEach(item => store.put(item));
+      slice.forEach(item => store.put(cleanRec_(item)));
       tx.oncomplete = ()=>{ i += CHUNK; nextChunk(); };
       tx.onerror = ()=>reject(tx.error);
     }
@@ -2455,6 +3115,8 @@ function idbClearMovements(){
 }
 
 function idbPutOpname(entry){
+  cleanRec_(entry);
+  if(!entry.by){ const b = curBy_(); if(b) entry.by = b; }
   return new Promise((resolve)=>{
     const tx = idb.transaction("opname", "readwrite");
     tx.objectStore("opname").put(entry);
@@ -2476,10 +3138,11 @@ function idbGetAllOpname(){
   });
 }
 
-async function recordMovement(ref_id, type, sku, nama, bin, remark, docNo = "") {
+async function recordMovement(ref_id, type, sku, nama, bin, remark, docNo = "", uid = null) {
     const moveEntry = {
-        id: generateMoveID(), ref_id: ref_id, type: type, sku: sku, nama: nama, bin: bin, remark: remark, docNo: docNo || "", ts: new Date().toISOString()
+        id: generateMoveID(), ref_id: ref_id, type: type, sku: sku, nama: nama, bin: bin, remark: remark, docNo: docNo || "", ts: new Date().toISOString(), by: curBy_()
     };
+    if (uid) moveEntry.uid = String(uid).trim().toUpperCase(); // RFID unit, supaya Tracking Movement bisa dicari lewat RFID
     await idbAddMovement(moveEntry);
 }
 
@@ -2533,6 +3196,7 @@ const tabNames = [
   { id: "dashboardreport", nav: "navDashboardReport", tab: "tab-dashboardreport" },
   { id: "master", nav: "navMaster", tab: "tab-master" },
   { id: "rfidmap", nav: "navRfidMap", tab: "tab-rfidmap" },
+  { id: "users", nav: "navUsers", tab: "tab-users" },
   { id: "qrcode", nav: "navQRCode", tab: "tab-qrcode" }
 ];
 
@@ -2542,7 +3206,7 @@ function switchTab(activeId) {
   if (activeId === "allscan" || activeId === "bincl") {
       if (!sessionStorage.getItem("admin_unlocked")) {
           const pass = prompt("Masukkan Password Administrator untuk mengakses Data Induk & Konfigurasi:");
-          if (pass === ADMIN_PASSWORD) {
+          if (isAdminPw_(pass)) {
               sessionStorage.setItem("admin_unlocked", "true");
               document.getElementById("navAllScan").classList.remove("locked");
               document.getElementById("navAllScan").innerHTML = "🌍 Data Induk (Unlocked)";
@@ -2580,6 +3244,7 @@ function switchTab(activeId) {
   if(activeId === "allscan") loadAllScan();
   if(activeId === "bincl") loadBinCL();
   if(activeId === "rfidmap") loadRfidMapTab();
+  if(activeId === "users") loadUsersTab();
   if(activeId === "movement") {
     document.getElementById("moveSearchSku").value = "";
     document.getElementById("moveStartDate").value = "";
@@ -2616,6 +3281,7 @@ function refreshCurrentTabView(){
       case "allscan": loadAllScan(); break;
       case "bincl": loadBinCL(); break;
       case "rfidmap": loadRfidMapTab(); break;
+      case "users": loadUsersTab(); break;
       case "movement":
         loadMovements(
           document.getElementById("moveSearchSku").value,
@@ -2656,6 +3322,7 @@ document.getElementById("navDashboardReport").onclick = () => switchTab("dashboa
 document.getElementById("navMaster").onclick = () => switchTab("master");
 document.getElementById("navRfidMap").onclick = () => switchTab("rfidmap");
 document.getElementById("navQRCode").onclick = () => switchTab("qrcode");
+document.getElementById("navUsers").onclick = () => switchTab("users");
 
 /* ============================================================
    4) INBOUND / RETUR SCAN LOGIC (Data Lokal Only)
@@ -2699,6 +3366,41 @@ document.addEventListener("click", (e)=>{
   }
 });
 
+/* ---- RFID/UID: indeks stok aktif per UID (untuk cegah duplikat & outbound per unit) ---- */
+function escUid_(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function normUid_(u){ return u ? String(u).trim().toUpperCase() : null; }
+let _uidIdx = null, _uidIdxTs = 0;
+let _ccRowsCache = null, _ccRowsTs = 0;
+function invalidateUidIndex(){ _uidIdx = null; _ccRowsTs = 0; }
+async function getUidIndex(){
+  if(_uidIdx && (Date.now() - _uidIdxTs) < 3000) return _uidIdx;
+  const rows = await idbGetAllScans();
+  const m = new Map();
+  rows.forEach(r => { if(r && r.type !== 'OUT' && r.uid) m.set(normUid_(r.uid), r); });
+  _uidIdx = m; _uidIdxTs = Date.now();
+  return m;
+}
+async function findStockByUid(uid){ return (await getUidIndex()).get(normUid_(uid)) || null; }
+function idbGetScanById_(id){
+  return new Promise(res => {
+    try{ const rq = idb.transaction("scanlog", "readonly").objectStore("scanlog").get(id); rq.onsuccess = () => res(rq.result || null); rq.onerror = () => res(null); }
+    catch(e){ res(null); }
+  });
+}
+// Cari baris stok berdasarkan UID tanpa getAll: indeks memori untuk menemukan id, lalu baca baris aslinya (sumber kebenaran).
+async function findStockRowByUidFast_(uid){
+  const U = normUid_(uid);
+  for(let attempt = 0; attempt < 2; attempt++){
+    if(attempt === 1) invalidateUidIndex(); // meleset di cache: bangun ulang sekali sebelum menyatakan "tidak ada"
+    const hit = (await getUidIndex()).get(U);
+    if(!hit) continue;
+    const fresh = await idbGetScanById_(hit.id);
+    if(fresh && fresh.type !== 'OUT' && fresh.uid && normUid_(fresh.uid) === U) return fresh;
+    invalidateUidIndex();
+  }
+  return null;
+}
+
 async function getActiveSessionScans() {
   const rows = await idbGetAllScans();
   return rows.filter(r => r && r.sessionActive !== false && (r.type === "INBOUND" || r.type === "RETUR" || r.type === "IN"));
@@ -2709,7 +3411,34 @@ async function getActiveSessionScans() {
 // menekan tombol "🚀 Eksekusi Inbound".
 let sessionInboundScans = [];
 
+const _inflightIn = new Set();
 async function handleScan(sku, uid){
+  const U = normUid_(uid);
+  if(U){
+    if(_inflightIn.has(U)) return; // bacaan ganda beruntun dari reader untuk tag yang sama
+    _inflightIn.add(U);
+  }
+  try { return await handleScanCore(sku, U || uid); }
+  finally { if(U) _inflightIn.delete(U); }
+}
+
+async function handleScanCore(sku, uid){
+  if(uid){
+    const U = normUid_(uid);
+    const dupStage = sessionInboundScans.find(s => s.uid && normUid_(s.uid) === U);
+    const dupStock = dupStage ? null : await findStockByUid(U);
+    if(dupStage || dupStock){
+      const where = dupStage ? "sudah ada di Staging Inbound ini" : `sudah ada di stok (Bin ${escUid_(dupStock.bin || '-')})`;
+      document.getElementById("scanResult").innerHTML = `<div class="result notfound">
+        <div class="sku">${escUid_(U)}</div>
+        <div class="nama">RFID ${where}</div>
+        <div style="margin-top:4px"><span class="badge bad">⛔ DUPLIKAT — DITOLAK</span></div>
+      </div>`;
+      toast(`RFID ${U} ditolak: ${dupStage ? 'sudah di staging' : 'sudah ada di stok'}`, "bad");
+      scanInput.focus();
+      return;
+    }
+  }
   let product = await idbGetMaster(sku);
   if(!product){
     try{
@@ -2755,12 +3484,21 @@ document.getElementById("btnExecInbound").onclick = async () => {
   if (sessionInboundScans.length === 0) { toast("Data Staging Inbound kosong!", "bad"); return; }
   if (!confirm(`Eksekusi ${sessionInboundScans.length} item dari Staging ke Data Induk?`)) return;
   try {
+      invalidateUidIndex();
+      const uidIdx = await getUidIndex();
+      let skippedDup = 0;
       for (const item of sessionInboundScans) {
+          if (item.uid) {
+              const U = normUid_(item.uid);
+              if (uidIdx.has(U)) { skippedDup++; continue; } // UID sudah masuk stok (mis. dari perangkat lain)
+              uidIdx.set(U, item);
+          }
           const entry = { id: item.id, sku: item.sku, uid: item.uid || null, nama: item.nama, found: item.found, bin: item.bin, docNo: item.docNo, ts: item.ts, sessionActive: true, type: item.type, returChannel: item.returChannel, remark: item.remark };
           await idbAddScan(entry);
-          await recordMovement(entry.id, item.type, item.sku, item.nama || "-", item.bin, item.remark, item.docNo);
+          await recordMovement(entry.id, item.type, item.sku, item.nama || "-", item.bin, item.remark, item.docNo, item.uid);
       }
-      const count = sessionInboundScans.length;
+      invalidateUidIndex();
+      const count = sessionInboundScans.length - skippedDup;
       sessionInboundScans = [];
       renderInboundLog();
       const scanResult = document.getElementById("scanResult");
@@ -2768,7 +3506,7 @@ document.getElementById("btnExecInbound").onclick = async () => {
       if(!document.getElementById("tab-search").classList.contains("hidden")) renderBinOverview();
       if(!document.getElementById("tab-allscan").classList.contains("hidden")) loadAllScan();
       loadPivot();
-      toast(`✓ ${count} item Inbound berhasil dieksekusi ke Data Induk`, "good");
+      toast(`✓ ${count} item Inbound berhasil dieksekusi ke Data Induk` + (skippedDup ? ` (${skippedDup} RFID duplikat dilewati)` : ""), "good");
   } catch (err) {
       console.error(err);
       toast("Gagal eksekusi Inbound: " + err.message, "bad");
@@ -2802,7 +3540,7 @@ function renderInboundLog(){
     tr.innerHTML = `
       <td>${jam} <span class="badge ${r.type==='RETUR'?'warning':'good'}">${r.type}</span></td>
       <td><span style="color:var(--accent); font-weight:bold;">${r.bin || '-'}</span>${r.docNo ? `<br><span style="font-size:10px; color:var(--text-muted);">DOK: ${r.docNo}</span>` : ''}</td>
-      <td class="sku">${r.sku}</td>
+      <td class="sku">${r.sku}${r.uid ? `<br><span style="font-size:10px; color:var(--text-muted);">RFID: ${escUid_(r.uid)}</span>` : ''}</td>
       <td>${r.found ? r.nama : '<span class="badge bad">N/A</span>'}</td>
       <td style="text-align:center;"><button class="btn-delete" onclick="removeInboundStage(${realIdx})" title="Hapus dari Staging">🗑️</button></td>
     `;
@@ -2829,38 +3567,57 @@ outScanInput.addEventListener("keydown", async (e)=>{
   if(!raw) return;
   const resolved = await resolveScanValue(raw, outScanInput);
   if(resolved === null) return;
-  await handleOutboundScan(resolved.sku);
+  await handleOutboundScan(resolved.sku, resolved.uid);
 });
 
-async function handleOutboundScan(sku) {
+async function handleOutboundScan(sku, uid) {
   const binValue = document.getElementById("outBinInput").value.trim().toUpperCase();
-  if (!binValue) { toast("Lokasi Target Bin Wajib Diisi!", "bad"); return; }
+  // Scan RFID tidak wajib isi Bin: unit dicari berdasarkan UID-nya. Scan SKU biasa tetap wajib Bin.
+  if (!binValue && !uid) { toast("Lokasi Target Bin Wajib Diisi!", "bad"); return; }
   const remark = document.getElementById("outRemarkInput").value.trim() || "Outbound Scan";
   
-  await executeDeduction(sku, binValue, 'OUTBOUND', remark, true);
+  await executeDeduction(sku, binValue, 'OUTBOUND', remark, true, uid);
   outScanInput.focus();
 }
 
-async function executeDeduction(sku, bin, typeStr, remark, isSession = false) {
-    const allScansRaw = await idbGetAllScans();
-    const allScans = allScansRaw.filter(r => r !== null && r !== undefined);
-    
+const _inflightOut = new Set();
+let _deductChain = Promise.resolve();
+async function executeDeduction(sku, bin, typeStr, remark, isSession = false, uid = null) {
+    const U = normUid_(uid);
+    if (U) { if (_inflightOut.has(U)) return false; _inflightOut.add(U); }
+    // Antrean berurutan: dua scan beruntun (SKU sama) tidak boleh memilih baris stok yang sama.
+    const run = _deductChain.then(() => executeDeductionCore(sku, bin, typeStr, remark, isSession, U));
+    _deductChain = run.catch(() => {});
+    try { return await run; }
+    finally { if (U) { _inflightOut.delete(U); if (_uidIdx) _uidIdx.delete(U); } else invalidateUidIndex(); }
+}
+
+async function executeDeductionCore(sku, bin, typeStr, remark, isSession = false, uid = null) {
     const skuNorm = String(sku).trim().toUpperCase();
-    const targetIndex = allScans.findIndex(r => r.sku && r.sku.trim().toUpperCase() === skuNorm && (r.bin || '-') === bin && r.type !== 'OUT');
-    
-    if (targetIndex === -1) {
-        toast(`Stok tidak mencukupi untuk SKU ${sku} di Bin ${bin}`, "bad");
+    let target = null;
+    if (uid) {
+        // RFID: cari unit persis dengan UID itu lewat indeks UID + baca ulang barisnya (tanpa memuat 44 ribu baris tiap scan)
+        target = await findStockRowByUidFast_(uid);
+    } else {
+        const allScans = (await idbGetAllScans()).filter(r => r !== null && r !== undefined);
+        target = allScans.find(r => r.sku && r.sku.trim().toUpperCase() === skuNorm && (r.bin || '-') === bin && r.type !== 'OUT') || null;
+    }
+
+    if (!target) {
+        toast(uid ? `RFID ${uid} tidak ada di stok (belum inbound atau sudah keluar)` : `Stok tidak mencukupi untuk SKU ${sku} di Bin ${bin}`, "bad");
         if(isSession) {
             outboundStats.notfound += 1;
             document.getElementById("outStatNotFound").textContent = outboundStats.notfound;
         }
         return false;
     }
-    
-    const target = allScans[targetIndex];
+
+    if (uid && bin && (target.bin || '-') !== bin) {
+        toast(`RFID ${uid} tercatat di Bin ${target.bin || '-'} (bukan ${bin}); diproses dari Bin ${target.bin || '-'}`, "warning");
+    }
 
     await idbDeleteScan(target.id);
-    await recordMovement(target.id, typeStr, target.sku, target.nama, target.bin, remark);
+    await recordMovement(target.id, typeStr, target.sku, target.nama, target.bin, remark, "", target.uid);
 
     if (isSession) {
         outboundStats.total += 1;
@@ -2868,7 +3625,7 @@ async function executeDeduction(sku, bin, typeStr, remark, isSession = false) {
         document.getElementById("outStatTotal").textContent = outboundStats.total;
         document.getElementById("outStatFound").textContent = outboundStats.found;
         
-        sessionOutboundScans.push({ id: target.id, ts: new Date().toISOString(), bin: target.bin, sku: target.sku, remark: remark, nama: target.nama });
+        sessionOutboundScans.push({ id: target.id, ts: new Date().toISOString(), bin: target.bin, sku: target.sku, uid: target.uid || null, remark: remark, nama: target.nama });
         
         const resultBox = document.getElementById("outScanResult");
         if(resultBox) {
@@ -2898,7 +3655,7 @@ function renderOutboundLog() {
         tr.innerHTML = `
           <td>${jam}</td>
           <td><span style="color:var(--danger); font-weight:bold;">${r.bin || '-'}</span></td>
-          <td class="sku">${r.sku}</td>
+          <td class="sku">${r.sku}${r.uid ? `<br><span style="font-size:10px; color:var(--text-muted);">RFID: ${escUid_(r.uid)}</span>` : ''}</td>
           <td>${r.remark || '-'}</td>
         `;
         tbody.appendChild(tr);
@@ -2952,9 +3709,29 @@ ccScanInput.addEventListener("keydown", async (e)=>{
   await handleCCScan(resolved.sku, resolved.uid);
 });
 
+const _inflightCC = new Set();
 async function handleCCScan(sku, uid) {
+  const U = normUid_(uid);
+  if (U) {
+    if (_inflightCC.has(U)) return; // bacaan ganda beruntun untuk tag yang sama
+    _inflightCC.add(U);
+  }
+  try { return await handleCCScanCore(sku, U || uid); }
+  finally { if (U) _inflightCC.delete(U); }
+}
+
+async function handleCCScanCore(sku, uid) {
   const binValue = document.getElementById("ccBinInput").value.trim().toUpperCase();
   if (!binValue || binValue === "-") { toast("Lokasi Target Bin Wajib Diisi!", "bad"); return; }
+
+  if (uid) {
+    const Uc = normUid_(uid);
+    if (sessionCCScans.some(s => s.uid && normUid_(s.uid) === Uc)) {
+        toast(`RFID ${Uc} sudah dihitung di sesi Cycle Count ini (diabaikan)`, "warning");
+        ccScanInput.focus();
+        return;
+    }
+  }
   
   let product = await idbGetMaster(sku);
   if(!product){
@@ -2979,6 +3756,13 @@ async function handleCCScan(sku, uid) {
     </div>`;
   }
 
+  if (uid) {
+    const existing = await findStockByUid(uid);
+    if (existing && (existing.bin || '-') !== binValue) {
+        resultBox.innerHTML += `<div style="margin-top:4px"><span class="badge warning">⚠ RFID tercatat di Bin ${escUid_(existing.bin || '-')} — akan dipindah ke Bin ${escUid_(binValue)} saat eksekusi</span></div>`;
+    }
+  }
+
   sessionCCScans.push({
       id: generateID(), sku: sku, uid: uid || null, nama: product ? product.nama : "Tidak Dikenali", found: !!product, bin: binValue, ts: new Date().toISOString()
   });
@@ -2990,6 +3774,7 @@ async function handleCCScan(sku, uid) {
 function renderCCLog() {
     const tbody = document.getElementById("ccLogBody");
     if(!tbody) return;
+    scheduleCCDiff_();
 
     ccStats.total = sessionCCScans.length;
     ccStats.found = sessionCCScans.filter(r => r.found).length;
@@ -3010,7 +3795,7 @@ function renderCCLog() {
         const realIdx = sessionCCScans.length - 1 - idx;
         tr.innerHTML = `
           <td><span style="color:var(--accent); font-weight:bold;">${r.bin}</span></td>
-          <td class="sku">${r.sku}</td>
+          <td class="sku">${r.sku}${r.uid ? `<br><span style="font-size:10px; color:var(--text-muted);">RFID: ${escUid_(r.uid)}</span>` : ''}</td>
           <td>${r.nama}</td>
           <td style="text-align:center;"><button class="btn-delete" onclick="removeCCStage(${realIdx})" title="Hapus Staging">🗑️</button></td>
         `;
@@ -3032,18 +3817,220 @@ document.getElementById("btnClearCC").onclick = () => {
     toast("Staging Cycle Count Dibatalkan", "good");
 };
 
+/* ================= SELISIH CYCLE COUNT =================
+   Membandingkan hasil hitung (staging) dengan stok sistem pada bin yang sama: selisih per bin,
+   per SKU, dan daftar SKU yang hilang. Dipakai untuk pratinjau, konfirmasi, laporan, dan log. */
+const CC_STATUS_ = {
+  HILANG: { cls: "bad", order: 0 }, KURANG: { cls: "warning", order: 1 }, PINDAH: { cls: "transfer", order: 2 },
+  BARU: { cls: "good", order: 3 }, LEBIH: { cls: "good", order: 4 }, SESUAI: { cls: "muted", order: 5 }
+};
+const CC_REPORT_KEY_ = "wms_cc_last_report";
+let _ccLastReport = null, _ccPaint = null, _ccShowOk = false, _ccDiffTimer = null, _ccDiffSeq = 0;
+function fmtSel_(n){ return (n > 0 ? "+" : "") + n; }
+
+function computeCCDiff_(staging, allRows){
+  const bins = [...new Set(staging.map(r => r.bin))];
+  const binSet = new Set(bins);
+  const stagedByUid = new Map();   // UID -> bin tempat UID itu dihitung
+  staging.forEach(r => { if(r.uid) stagedByUid.set(normUid_(r.uid), r.bin); });
+  const uidSysBin = new Map();     // UID -> bin di stok sistem (seluruh gudang)
+  const rows = new Map();
+  const entry = (bin, sku, nama) => {
+    const k = bin + "\u0001" + String(sku).toUpperCase();
+    let e = rows.get(k);
+    if(!e){ e = { bin, sku, nama: nama || "", sistem: 0, hitung: 0, pindahMasuk: 0, pindahKeluar: 0, dari: new Set(), ke: new Set(), uidHilang: [] }; rows.set(k, e); }
+    else if(!e.nama && nama) e.nama = nama;
+    return e;
+  };
+  allRows.forEach(r => {
+    if(!r || r.type === 'OUT') return;
+    const b = r.bin || '-';
+    if(r.uid) uidSysBin.set(normUid_(r.uid), b);
+    if(!binSet.has(b)) return;
+    const e = entry(b, r.sku || '-', r.nama);
+    e.sistem++;
+    if(r.uid){
+      const to = stagedByUid.get(normUid_(r.uid));
+      if(to === undefined) e.uidHilang.push(normUid_(r.uid));
+      else if(to !== b){ e.pindahKeluar++; e.ke.add(to); }
+    }
+  });
+  staging.forEach(r => {
+    const e = entry(r.bin, r.sku || '-', r.nama);
+    e.hitung++;
+    if(r.uid){
+      const from = uidSysBin.get(normUid_(r.uid));
+      if(from !== undefined && from !== r.bin){ e.pindahMasuk++; e.dari.add(from); }
+    }
+  });
+  const list = [...rows.values()].map(e => {
+    const selisih = e.hitung - e.sistem;
+    const hilangUnit = selisih < 0 ? Math.max(0, -selisih - e.pindahKeluar) : 0;
+    let status = "SESUAI";
+    if(e.hitung === 0 && e.sistem > 0) status = hilangUnit > 0 ? "HILANG" : "PINDAH";
+    else if(e.sistem === 0 && e.hitung > 0) status = e.pindahMasuk >= e.hitung ? "PINDAH" : "BARU";
+    else if(selisih < 0) status = hilangUnit > 0 ? "KURANG" : "PINDAH";
+    else if(selisih > 0) status = "LEBIH";
+    const notes = [];
+    if(e.pindahMasuk) notes.push(e.pindahMasuk + " unit pindahan dari " + [...e.dari].join(", "));
+    if(e.pindahKeluar) notes.push(e.pindahKeluar + " unit pindah ke " + [...e.ke].join(", "));
+    return { bin: e.bin, sku: e.sku, nama: e.nama, sistem: e.sistem, hitung: e.hitung, selisih, hilangUnit, status, note: notes.join("; "), uidHilang: e.uidHilang };
+  });
+  list.sort((a, b) => CC_STATUS_[a.status].order - CC_STATUS_[b.status].order || String(a.bin).localeCompare(String(b.bin)) || String(a.sku).localeCompare(String(b.sku)));
+  const sum = (arr, f) => arr.reduce((t, x) => t + f(x), 0);
+  const perBin = bins.map(b => {
+    const rs = list.filter(x => x.bin === b);
+    return { bin: b, sistem: sum(rs, x => x.sistem), hitung: sum(rs, x => x.hitung), selisih: sum(rs, x => x.selisih),
+             hilangUnit: sum(rs, x => x.hilangUnit), skuHilang: rs.filter(x => x.status === "HILANG").length };
+  });
+  const total = {
+    sistem: sum(list, x => x.sistem), hitung: sum(list, x => x.hitung), selisih: sum(list, x => x.selisih),
+    hilangUnit: sum(list, x => x.hilangUnit), skuHilang: list.filter(x => x.status === "HILANG").length,
+    skuKurang: list.filter(x => x.status === "KURANG").length, skuLebih: list.filter(x => x.status === "LEBIH" || x.status === "BARU").length
+  };
+  return { bins, list, perBin, total };
+}
+
+async function getCCSystemRows_(){
+  if(_ccRowsCache && (Date.now() - _ccRowsTs) < 30000) return _ccRowsCache;
+  const rows = await idbGetAllScans();
+  _ccRowsCache = rows.filter(r => r && r.type !== 'OUT');
+  _ccRowsTs = Date.now();
+  return _ccRowsCache;
+}
+
+function scheduleCCDiff_(){ clearTimeout(_ccDiffTimer); _ccDiffTimer = setTimeout(renderCCDiff_, 160); }
+
+async function renderCCDiff_(){
+  const seq = ++_ccDiffSeq;
+  const wrap = document.getElementById("ccDiffWrap");
+  if(!wrap) return;
+  if(sessionCCScans.length === 0){
+    if(_ccLastReport) paintCCDiff_(_ccLastReport.diff, _ccLastReport.meta);
+    else wrap.hidden = true;
+    return;
+  }
+  try {
+    const rows = await getCCSystemRows_();
+    if(seq !== _ccDiffSeq) return; // ada pemindaian lebih baru, hasil ini kedaluwarsa
+    paintCCDiff_(computeCCDiff_(sessionCCScans, rows), { live: true });
+  } catch(err){ console.error(err); }
+}
+
+function paintCCDiff_(diff, meta){
+  _ccPaint = { diff, meta };
+  const wrap = document.getElementById("ccDiffWrap");
+  if(!wrap) return;
+  wrap.hidden = false;
+  const t = diff.total, live = !!(meta && meta.live);
+  document.getElementById("ccDiffTitle").textContent = live
+    ? "Selisih vs Stok Sistem (pratinjau, belum dieksekusi)"
+    : "Hasil Cycle Count terakhir" + (meta && meta.ts ? " — " + new Date(meta.ts).toLocaleString("id-ID") : "") + (meta && meta.by ? " oleh " + meta.by : "");
+  document.getElementById("ccDiffHint").textContent = live
+    ? "Status HILANG sementara berarti SKU ada di stok sistem tetapi belum ter-scan. Selesaikan scan seluruh isi bin sebelum Eksekusi Cycle Count."
+    : "Laporan ini sudah dieksekusi: stok sistem pada bin tersebut sudah diganti dengan hasil hitung.";
+  const kpi = (cls, label, val, sub) => '<div class="ccd-kpi ' + cls + '"><span>' + label + '</span><b>' + val + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
+  const binsTxt = escUid_(diff.bins.slice(0, 3).join(", ") + (diff.bins.length > 3 ? " +" + (diff.bins.length - 3) : ""));
+  document.getElementById("ccDiffKpi").innerHTML =
+    kpi("", "Bin dihitung", diff.bins.length, binsTxt) +
+    kpi("", "Stok sistem", t.sistem, "unit sebelum hitung") +
+    kpi("", "Hasil hitung", t.hitung, "unit ter-scan") +
+    kpi(t.selisih < 0 ? "bad" : "ok", "Selisih", fmtSel_(t.selisih), "hitung − sistem") +
+    kpi(t.skuHilang ? "bad" : "ok", "SKU hilang", t.skuHilang, t.hilangUnit + " unit hilang") +
+    kpi(t.skuKurang ? "warn" : "ok", "SKU kurang", t.skuKurang) +
+    kpi("", "SKU lebih / baru", t.skuLebih);
+
+  const cls = n => n < 0 ? "neg" : n > 0 ? "pos" : "";
+  document.getElementById("ccDiffBins").innerHTML = diff.perBin.map(b =>
+    '<tr><td style="font-weight:bold; color:var(--accent);">' + escUid_(b.bin) + '</td><td class="num">' + b.sistem + '</td><td class="num">' + b.hitung +
+    '</td><td class="num ' + cls(b.selisih) + '">' + fmtSel_(b.selisih) + '</td><td class="num">' + b.skuHilang + '</td><td class="num">' + b.hilangUnit + '</td></tr>').join("");
+
+  const lost = diff.list.filter(r => r.status === "HILANG");
+  document.getElementById("ccDiffLostCount").textContent = "(" + lost.length + " SKU, " + lost.reduce((a, r) => a + r.hilangUnit, 0) + " unit)";
+  const LIMIT = 300;
+  document.getElementById("ccDiffLost").innerHTML = lost.length ? lost.slice(0, LIMIT).map(r => {
+    const u = r.uidHilang || [];
+    const uTxt = u.length ? escUid_(u.slice(0, 3).join(", ")) + (u.length > 3 ? " +" + (u.length - 3) + " lagi" : "") : '<span class="hint">-</span>';
+    return '<tr class="lost"><td style="font-weight:bold;">' + escUid_(r.bin) + '</td><td class="sku">' + escUid_(r.sku) + '</td><td>' + escUid_(r.nama) +
+           '</td><td class="num neg">' + r.hilangUnit + '</td><td>' + uTxt + '</td></tr>';
+  }).join("") + (lost.length > LIMIT ? '<tr><td colspan="5" class="hint" style="text-align:center;">Menampilkan ' + LIMIT + ' dari ' + lost.length + ' SKU. Gunakan Export CSV untuk semuanya.</td></tr>' : "")
+    : '<tr><td colspan="5" class="hint" style="text-align:center;">Tidak ada SKU yang hilang.</td></tr>';
+
+  const shown = diff.list.filter(r => _ccShowOk || r.status !== "SESUAI");
+  document.getElementById("ccDiffRows").innerHTML = shown.length ? shown.slice(0, LIMIT).map(r => {
+    const st = CC_STATUS_[r.status];
+    return '<tr><td style="font-weight:bold;">' + escUid_(r.bin) + '</td><td class="sku">' + escUid_(r.sku) + '</td><td>' + escUid_(r.nama) +
+           '</td><td class="num">' + r.sistem + '</td><td class="num">' + r.hitung + '</td><td class="num ' + cls(r.selisih) + '">' + fmtSel_(r.selisih) +
+           '</td><td><span class="badge ' + st.cls + '">' + r.status + '</span></td><td>' + (r.note ? escUid_(r.note) : '<span class="hint">-</span>') + '</td></tr>';
+  }).join("") + (shown.length > LIMIT ? '<tr><td colspan="8" class="hint" style="text-align:center;">Menampilkan ' + LIMIT + ' dari ' + shown.length + ' baris. Gunakan Export CSV untuk semuanya.</td></tr>' : "")
+    : '<tr><td colspan="8" class="hint" style="text-align:center;">Tidak ada selisih: hasil hitung sama dengan stok sistem.</td></tr>';
+}
+
+async function logCCDiff_(diff){
+  const refId = "CCD_" + Date.now();
+  const t = diff.total, binTxt = diff.bins.join(",");
+  await recordMovement(refId, "CC_SELISIH", "-", "Ringkasan Selisih CC", binTxt,
+    "Ringkasan: sistem " + t.sistem + ", hitung " + t.hitung + ", selisih " + fmtSel_(t.selisih) + " unit; " + t.skuHilang + " SKU hilang (" + t.hilangUnit + " unit)");
+  const rows = diff.list.filter(e => e.status !== "SESUAI");
+  for(const e of rows.slice(0, 400)){
+    await recordMovement(refId, "CC_SELISIH", e.sku, e.nama, e.bin,
+      "Selisih CC [" + e.status + "]: sistem " + e.sistem + " → hitung " + e.hitung + " (" + fmtSel_(e.selisih) + ")" + (e.note ? " — " + e.note : ""));
+  }
+  if(rows.length > 400) await recordMovement(refId, "CC_SELISIH", "-", "Batas pencatatan", binTxt, (rows.length - 400) + " baris selisih lainnya tidak dicatat satu per satu (batas 400). Lihat laporan atau Export CSV.");
+}
+
+function saveCCReport_(){
+  try {
+    if(!_ccLastReport) return;
+    const d = _ccLastReport.diff;
+    const diffRows = d.list.filter(r => r.status !== "SESUAI").slice(0, 2000);
+    const ok = d.list.filter(r => r.status === "SESUAI").slice(0, Math.max(0, 2000 - diffRows.length));
+    localStorage.setItem(CC_REPORT_KEY_, JSON.stringify({ diff: Object.assign({}, d, { list: diffRows.concat(ok) }), meta: _ccLastReport.meta }));
+  } catch(e){ /* kuota penuh: laporan tetap tersedia di memori selama halaman terbuka */ }
+}
+
+function csvCell_(v){ let t = String(v == null ? "" : v); if(/^[=+\-@\t\r]/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; }
+function ccDiffToCSV_(diff){
+  const lines = [["Bin","SKU","Nama Barang","Stok Sistem","Hasil Hitung","Selisih","Unit Hilang","Status","Catatan","UID Hilang"].map(csvCell_).join(",")];
+  diff.list.forEach(r => lines.push([csvCell_(r.bin), csvCell_(r.sku), csvCell_(r.nama), r.sistem, r.hitung, r.selisih, r.hilangUnit, csvCell_(r.status), csvCell_(r.note), csvCell_((r.uidHilang || []).join(" "))].join(",")));
+  return "\ufeff" + lines.join("\r\n");
+}
+function exportCCDiffCSV_(){
+  if(!_ccPaint){ toast("Belum ada data selisih untuk diekspor.", "bad"); return; }
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  const name = "selisih-cycle-count-" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "-" + p(d.getHours()) + p(d.getMinutes()) + ".csv";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([ccDiffToCSV_(_ccPaint.diff)], { type: "text/csv;charset=utf-8" }));
+  a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+(function initCCDiff_(){
+  try { const raw = localStorage.getItem(CC_REPORT_KEY_); if(raw) _ccLastReport = JSON.parse(raw); } catch(e){ _ccLastReport = null; }
+  const chk = document.getElementById("ccDiffShowOk");
+  if(chk) chk.addEventListener("change", () => { _ccShowOk = chk.checked; if(_ccPaint) paintCCDiff_(_ccPaint.diff, _ccPaint.meta); });
+  const ex = document.getElementById("ccDiffExport");
+  if(ex) ex.onclick = exportCCDiffCSV_;
+  if(_ccLastReport) scheduleCCDiff_();
+})();
+
 document.getElementById("btnExecCC").onclick = async () => {
   if(sessionCCScans.length === 0){ toast("Data Staging kosong!", "bad"); return; }
   
   const uniqueBins = [...new Set(sessionCCScans.map(r => r.bin))];
-  if(!confirm(`PERINGATAN: Eksekusi Cycle Count untuk Bin:\n${uniqueBins.join(", ")}\n\nSeluruh stok fisik lama pada bin tersebut di Data Induk akan dihapus, lalu ditimpa dengan ${sessionCCScans.length} item dari Staging ini. Lanjutkan?`)) return;
+  let diffPre = null;
+  try { diffPre = computeCCDiff_(sessionCCScans, (await idbGetAllScans()).filter(Boolean)); } catch(e){ console.error(e); }
+  const sumTxt = diffPre ? `\n\nPerbandingan dengan stok sistem:\n• Stok sistem: ${diffPre.total.sistem} unit\n• Hasil hitung: ${diffPre.total.hitung} unit\n• Selisih: ${fmtSel_(diffPre.total.selisih)} unit\n• SKU hilang: ${diffPre.total.skuHilang} SKU (${diffPre.total.hilangUnit} unit)` : "";
+  if(!confirm(`PERINGATAN: Eksekusi Cycle Count untuk Bin:\n${uniqueBins.join(", ")}${sumTxt}\n\nSeluruh stok fisik lama pada bin tersebut di Data Induk akan dihapus, lalu ditimpa dengan ${sessionCCScans.length} item dari Staging ini. Lanjutkan?`)) return;
 
   toast("Mengeksekusi Cycle Count...", "warning");
 
   try {
       const rows = await idbGetAllScans();
       const validRows = rows.filter(r => r !== null && r !== undefined);
-      const rowsToDelete = validRows.filter(r => r.type !== 'OUT' && uniqueBins.includes(r.bin));
+      // Selain isi bin yang dihitung, hapus juga baris lama dengan UID yang sama di bin lain (unit dipindah, bukan digandakan).
+      const stagedUidSet = new Set(sessionCCScans.filter(s => s.uid).map(s => normUid_(s.uid)));
+      const rowsToDelete = validRows.filter(r => r.type !== 'OUT' && (uniqueBins.includes(r.bin) || (r.uid && stagedUidSet.has(normUid_(r.uid)))));
       const localIdsToDelete = rowsToDelete.map(r => r.id);
 
       // Simpan tanggal asli unit lama (per SKU+Bin, cadangan per SKU) supaya Aging tidak ter-reset oleh Cycle Count.
@@ -3076,13 +4063,18 @@ document.getElementById("btnExecCC").onclick = async () => {
       }
       await recordMovement("CC_INSERT", "CYCLE_COUNT", "MULTIPLE", "Batch CC", uniqueBins.join(","), `Insert ${sessionCCScans.length} item hasil Cycle Count`);
 
+      const diffFinal = computeCCDiff_(sessionCCScans, validRows); // dihitung dari isi bin SEBELUM dihapus
+      await logCCDiff_(diffFinal);
+      _ccLastReport = { diff: diffFinal, meta: { live: false, by: curBy_(), ts: new Date().toISOString() } };
+      saveCCReport_();
+      invalidateUidIndex();
       sessionCCScans = [];
       renderCCLog();
       const res = document.getElementById("ccScanResult");
       if(res) res.innerHTML = "";
       if(!document.getElementById("tab-search").classList.contains("hidden")) renderBinOverview();
       
-      toast(`✓ Cycle Count berhasil untuk Bin: ${uniqueBins.join(", ")}`, "good");
+      toast(`✓ Cycle Count berhasil untuk Bin: ${uniqueBins.join(", ")} · Selisih ${fmtSel_(diffFinal.total.selisih)} unit, ${diffFinal.total.skuHilang} SKU hilang`, "good");
   } catch(err) {
      console.error(err);
      toast("Gagal melakukan Eksekusi Cycle Count", "bad");
@@ -3103,10 +4095,17 @@ tfScanInput.addEventListener("keydown", async (e) => {
   if (!raw) return;
   const resolved = await resolveScanValue(raw, tfScanInput);
   if (resolved === null) return;
-  await handleTransferScan(resolved.sku);
+  await handleTransferScan(resolved.sku, resolved.uid);
 });
 
-async function handleTransferScan(sku) {
+let _transferChain = Promise.resolve();
+function handleTransferScan(sku, uid) {
+  const run = _transferChain.then(() => handleTransferScanCore(sku, uid));
+  _transferChain = run.catch(() => {});
+  return run;
+}
+
+async function handleTransferScanCore(sku, uid) {
   const fromBin = document.getElementById("tfBinFromInput").value.trim().toUpperCase();
   const toBin = document.getElementById("tfBinToInput").value.trim().toUpperCase();
   const resultBox = document.getElementById("tfScanResult");
@@ -3123,12 +4122,15 @@ async function handleTransferScan(sku) {
       // Cari 1 unit fisik SKU ini yang benar-benar ada di Bin Asal & belum di-staging pada sesi ini
       // Perbandingan SKU dibuat case-insensitive (dan di-trim) agar hasil scan barcode (misal huruf kecil)
       // tetap cocok dengan data yang tersimpan walau beda kapitalisasi/spasi.
-      const candidate = validRows.find(r => r.type !== 'OUT' && r.sku && r.sku.trim().toUpperCase() === skuNorm && (r.bin || '-').toUpperCase() === fromBin && !stagedRowIds.has(r.id));
+      const uidNorm = normUid_(uid);
+      const candidate = uidNorm
+          ? validRows.find(r => r.type !== 'OUT' && r.uid && normUid_(r.uid) === uidNorm && (r.bin || '-').toUpperCase() === fromBin && !stagedRowIds.has(r.id))
+          : validRows.find(r => r.type !== 'OUT' && r.sku && r.sku.trim().toUpperCase() === skuNorm && (r.bin || '-').toUpperCase() === fromBin && !stagedRowIds.has(r.id));
 
       if (!candidate) {
           resultBox.innerHTML = `<div class="result notfound">
             <div class="sku"><span class="badge muted">DARI: ${fromBin}</span> <span class="badge transfer">KE: ${toBin}</span> ${sku}</div>
-            <div class="nama">Stok SKU ini tidak ditemukan / sudah habis di Bin ${fromBin}</div>
+            <div class="nama">${uidNorm ? 'RFID ' + escUid_(uidNorm) + ' tidak ada di Bin ' + fromBin + ' (atau sudah di-staging)' : 'Stok SKU ini tidak ditemukan / sudah habis di Bin ' + fromBin}</div>
             <div style="margin-top:4px"><span class="badge bad">⚠ TIDAK DITEMUKAN</span></div>
           </div>`;
           tfStats.notfound++;
@@ -3221,7 +4223,7 @@ document.getElementById("btnExecTransfer").onclick = async () => {
           target.bin = item.toBin;
           await new Promise((res) => {
               const tx = idb.transaction("scanlog", "readwrite");
-              tx.objectStore("scanlog").put(target);
+              tx.objectStore("scanlog").put(cleanRec_(target));
               tx.oncomplete = () => { idbEnqueueSync("scanlog", "put", target.id, target).then(res); };
           });
 
@@ -3229,6 +4231,7 @@ document.getElementById("btnExecTransfer").onclick = async () => {
           successCount++;
       }
 
+      invalidateUidIndex();
       sessionTransferScans = [];
       tfStats = { total: 0, found: 0, notfound: 0 };
       renderTransferLog();
@@ -3292,7 +4295,7 @@ document.getElementById("btnAutoTransferBin").onclick = async () => {
           item.bin = toBin;
           await new Promise((res) => {
               const tx = idb.transaction("scanlog", "readwrite");
-              tx.objectStore("scanlog").put(item);
+              tx.objectStore("scanlog").put(cleanRec_(item));
               tx.oncomplete = () => { idbEnqueueSync("scanlog", "put", item.id, item).then(res); };
           });
           await recordMovement(item.id, "TRANSFER", item.sku, item.nama, `${fromBin} -> ${toBin}`, "Transfer Otomatis (Seluruh Isi Bin)");
@@ -3445,9 +4448,9 @@ async function performAdvSearch(query) {
 /* ============================================================
    5.5) OVERVIEW & MANAJEMEN BIN (Create / Delete, Password Protected)
    ============================================================ */
-const BIN_ADMIN_PASSWORD = ADMIN_PASSWORD;
+
 let masterBins = JSON.parse(localStorage.getItem('masterBins') || '[]');
-function saveMasterBins() { localStorage.setItem('masterBins', JSON.stringify(masterBins)); }
+function saveMasterBins() { localStorage.setItem('masterBins', JSON.stringify(masterBins)); pushBinListDiff_('masterbin', masterBins); }
 
 async function getBinQtyMap() {
   const allRows = await idbGetAllScans();
@@ -3554,10 +4557,7 @@ window.viewBinContents = function(bin) {
 };
 
 document.getElementById("btnCreateBin").onclick = () => {
-  const pass = prompt("Masukkan Password Administrator untuk membuat Bin baru:");
-  if (pass === null) return;
-  if (pass !== BIN_ADMIN_PASSWORD) { toast("Password salah! Akses ditolak.", "bad"); return; }
-
+  
   const newBin = prompt("Masukkan Kode Bin baru (contoh: A-01-01):");
   if (newBin === null) return;
   const code = newBin.trim().toUpperCase();
@@ -3576,7 +4576,7 @@ document.getElementById("btnCreateBin").onclick = () => {
 document.getElementById("btnDeleteBin").onclick = async () => {
   const pass = prompt("Masukkan Password Administrator untuk menghapus Bin:");
   if (pass === null) return;
-  if (pass !== BIN_ADMIN_PASSWORD) { toast("Password salah! Akses ditolak.", "bad"); return; }
+  if (!isAdminPw_(pass)) { toast("Password salah! Akses ditolak.", "bad"); return; }
 
   const target = prompt("Masukkan Kode Bin yang ingin dihapus:");
   if (target === null) return;
@@ -3633,7 +4633,7 @@ window.processTransfer = async function(sku, oldBin) {
     target.bin = finalBin;
     await new Promise((res)=>{
         const tx = idb.transaction("scanlog", "readwrite");
-        tx.objectStore("scanlog").put(target);
+        tx.objectStore("scanlog").put(cleanRec_(target));
         tx.oncomplete = () => { idbEnqueueSync("scanlog", "put", target.id, target).then(res); };
     });
     
@@ -3739,7 +4739,7 @@ document.getElementById("btnExportPivot").onclick = async ()=>{
    7) TAB DATA INDUK (ALL SCAN LOKAL)
    ============================================================ */
 let deactivatedBins = JSON.parse(localStorage.getItem('deactivatedBins') || '[]');
-function saveDeactivatedBins() { localStorage.setItem('deactivatedBins', JSON.stringify(deactivatedBins)); }
+function saveDeactivatedBins() { localStorage.setItem('deactivatedBins', JSON.stringify(deactivatedBins)); pushBinListDiff_('deactbin', deactivatedBins); }
 
 let currentUniqueBins = [];
 async function loadBinManagement() {
@@ -3794,61 +4794,115 @@ document.getElementById("btnCloseBin").onclick = () => { document.getElementById
 
 let allScanRenderLimit = 200; 
 
+let allScanCache = null; // seluruh stok aktif (tanpa OUT); dipakai ulang saat mengetik agar tidak query IndexedDB tiap huruf
+
 async function loadAllScan(){
   try {
       const rows = await idbGetAllScans();
-      const validRows = rows.filter(r => r !== null && r !== undefined && r.type !== 'OUT');
-      
-      const statQty = document.getElementById("statAllScanQty");
-      if(statQty) statQty.textContent = validRows.length;
-
-      const tbody = document.getElementById("allScanBody");
-      if(!tbody) return;
-      tbody.innerHTML = "";
-
-      if(validRows.length === 0){
-         tbody.innerHTML = `<tr><td colspan="7" class="hint" style="text-align:center; padding: 24px;">Data Induk Lokal Kosong.</td></tr>`;
-         document.getElementById("allScanLoadMoreContainer").style.display = "none";
-         return;
-      }
-
-      const renderRows = validRows.slice().reverse().slice(0, allScanRenderLimit);
-
-      renderRows.forEach(r => {
-        const tr = document.createElement("tr");
-        const jam = r.ts ? new Date(r.ts).toLocaleString("id-ID") : "-";
-        const safeNama = r.nama ? r.nama.replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'N/A';
-        const isRetur = r.type === 'RETUR';
-        const remarkCell = isRetur
-          ? `<span class="badge warning" title="Ditandai sebagai barang Retur${r.returChannel ? ' - ' + r.returChannel : ''}">R${r.returChannel ? ' ' + r.returChannel : ''}</span>`
-          : `<span class="hint">-</span>`;
-        
-        const uidCell = r.uid ? `<span class="sku" title="Kode RFID/UID unit ini">${r.uid}</span>` : `<span class="hint">-</span>`;
-        tr.innerHTML = `
-          <td>${jam}</td>
-          <td style="color:var(--accent); font-weight:bold;">${r.bin || '-'}</td>
-          <td class="sku">${r.sku || '-'}</td>
-          <td>${uidCell}</td>
-          <td>${safeNama}</td>
-          <td>${remarkCell}</td>
-          <td style="text-align:center;"><button class="btn-delete" onclick="deleteMasterRow('${r.id}')" title="Hapus Dari Data Induk">🗑️</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById("allScanLoadMoreContainer").style.display = validRows.length > allScanRenderLimit ? "block" : "none";
-
+      allScanCache = rows.filter(r => r !== null && r !== undefined && r.type !== 'OUT');
+      renderAllScanView_();
   } catch (err) {
       console.error(err);
       const tbody = document.getElementById("allScanBody");
-      if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="hint" style="text-align:center; color:red;">Gagal memuat data lokal: ${err.message}</td></tr>`;
+      if(tbody) tbody.innerHTML = `<tr><td colspan="8" class="hint" style="text-align:center; color:red;">Gagal memuat data lokal: ${err.message}</td></tr>`;
   }
+}
+
+function allScanMatch_(r, q, field){
+  const has = v => v && String(v).toUpperCase().includes(q);
+  switch(field){
+    case "bin":  return has(r.bin);
+    case "sku":  return has(r.sku);
+    case "uid":  return has(r.uid);
+    case "nama": return has(r.nama);
+    default:     return has(r.bin) || has(r.sku) || has(r.uid) || has(r.nama);
+  }
+}
+
+function renderAllScanView_(){
+  const validRows = allScanCache || [];
+
+  const statQty = document.getElementById("statAllScanQty");
+  if(statQty) statQty.textContent = validRows.length;
+
+  const tbody = document.getElementById("allScanBody");
+  if(!tbody) return;
+  const moreBox = document.getElementById("allScanLoadMoreContainer");
+
+  const qEl = document.getElementById("allScanSearch");
+  const fEl = document.getElementById("allScanSearchField");
+  const rawQ = qEl ? qEl.value.trim() : "";
+  const q = rawQ.toUpperCase();
+  const field = fEl ? fEl.value : "bin";
+  const filtered = q ? validRows.filter(r => allScanMatch_(r, q, field)) : validRows;
+
+  const info = document.getElementById("allScanFilterInfo");
+  if(info){
+    if(q){
+      const skuCount = new Set(filtered.map(r => r.sku)).size;
+      info.textContent = `Hasil: ${filtered.length} item · ${skuCount} SKU`;
+    } else info.textContent = "";
+  }
+
+  tbody.innerHTML = "";
+
+  if(validRows.length === 0){
+     tbody.innerHTML = `<tr><td colspan="8" class="hint" style="text-align:center; padding: 24px;">Data Induk Lokal Kosong.</td></tr>`;
+     if(moreBox) moreBox.style.display = "none";
+     return;
+  }
+  if(filtered.length === 0){
+     tbody.innerHTML = `<tr><td colspan="8" class="hint" style="text-align:center; padding: 24px;">Tidak ada data untuk pencarian "${escUid_(rawQ)}".</td></tr>`;
+     if(moreBox) moreBox.style.display = "none";
+     return;
+  }
+
+  const renderRows = filtered.slice().reverse().slice(0, allScanRenderLimit);
+
+  renderRows.forEach(r => {
+    const tr = document.createElement("tr");
+    const jam = r.ts ? new Date(r.ts).toLocaleString("id-ID") : "-";
+    const safeNama = r.nama ? r.nama.replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'N/A';
+    const isRetur = r.type === 'RETUR';
+    const remarkCell = isRetur
+      ? `<span class="badge warning" title="Ditandai sebagai barang Retur${r.returChannel ? ' - ' + r.returChannel : ''}">R${r.returChannel ? ' ' + r.returChannel : ''}</span>`
+      : `<span class="hint">-</span>`;
+
+    const uidCell = r.uid ? `<span class="sku" title="Kode RFID/UID unit ini">${r.uid}</span>` : `<span class="hint">-</span>`;
+    tr.innerHTML = `
+      <td>${jam}</td>
+      <td style="color:var(--accent); font-weight:bold;">${r.bin || '-'}</td>
+      <td class="sku">${r.sku || '-'}</td>
+      <td>${uidCell}</td>
+      <td>${safeNama}</td>
+      <td>${remarkCell}</td>
+      <td>${r.by ? escUid_(r.by) : '<span class="hint">-</span>'}</td>
+      <td style="text-align:center;"><button class="btn-delete" onclick="deleteMasterRow('${r.id}')" title="Hapus Dari Data Induk">🗑️</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if(moreBox) moreBox.style.display = filtered.length > allScanRenderLimit ? "block" : "none";
 }
 
 document.getElementById("btnLoadMoreAllScan").onclick = () => {
   allScanRenderLimit += 500;
-  loadAllScan();
+  renderAllScanView_();
 };
+
+(function(){
+  const qEl = document.getElementById("allScanSearch");
+  const fEl = document.getElementById("allScanSearchField");
+  const clr = document.getElementById("allScanSearchClear");
+  if(!qEl || !fEl || !clr) return;
+  const placeholders = { bin: "🔍 Cari Bin, contoh: F-1-00005", sku: "🔍 Cari SKU", uid: "🔍 Cari UID / RFID", nama: "🔍 Cari Nama Barang", all: "🔍 Cari Bin / SKU / UID / Nama" };
+  let t = null;
+  const run = () => { allScanRenderLimit = 200; if(allScanCache) renderAllScanView_(); };
+  qEl.addEventListener("input", () => { clearTimeout(t); t = setTimeout(run, 250); });
+  qEl.addEventListener("keydown", e => { if(e.key === "Enter"){ clearTimeout(t); run(); } });
+  fEl.addEventListener("change", () => { qEl.placeholder = placeholders[fEl.value] || placeholders.all; run(); qEl.focus(); });
+  clr.onclick = () => { qEl.value = ""; run(); qEl.focus(); };
+})();
 
 window.deleteMasterRow = async function(id) {
   if(!confirm("Hapus baris ini dari Data Induk? (Memotong stok lokal permanen)")) return;
@@ -3979,7 +5033,7 @@ async function renameSkuInDataInduk(oldSku, newSku, bin, qty) {
           row.sku = newSku;
           await new Promise((res) => {
               const tx = idb.transaction("scanlog", "readwrite");
-              tx.objectStore("scanlog").put(row);
+              tx.objectStore("scanlog").put(cleanRec_(row));
               tx.oncomplete = () => { idbEnqueueSync("scanlog", "put", row.id, row).then(res); };
           });
       }
@@ -4900,6 +5954,12 @@ async function opRegisterScan(sku, bin, uid) {
 
   if (opFindResult(sku)) {
       resultBox.innerHTML = `<span class="badge warning">⚠ ${sku} sudah difinalisasi hari ini</span> — klik "✏️ Ulang" dulu untuk mengoreksi.`;
+      opScanInputEl.focus();
+      return;
+  }
+
+  if (uid && opScans.some(s => s.uid && normUid_(s.uid) === normUid_(uid))) {
+      resultBox.innerHTML = `<span class="badge warning">⚠ RFID ${escUid_(uid)} sudah dihitung hari ini (diabaikan)</span>`;
       opScanInputEl.focus();
       return;
   }
@@ -5846,6 +6906,7 @@ document.getElementById("btnExportAllScan").onclick = async ()=>{
     "Lokasi Bin": r.bin || "-",
     "SKU": r.sku,
     "UID": r.uid || "-",
+    "OLEH": r.by || "-",
     "Nama Barang": r.nama || "TIDAK DIKENALI"
   }));
   
@@ -5885,6 +6946,8 @@ document.getElementById("fileUploadScan").addEventListener("change", async (e) =
       // untuk 30-40 ribuan baris ini yang paling menghemat waktu (ribuan transaksi
       // IndexedDB berulang jadi cukup satu pembacaan).
       const masterMap = new Map((await idbGetAllMaster()).map(p => [p.sku, p]));
+      const existingUids = new Set((await idbGetAllScans()).filter(x => x && x.type !== 'OUT' && x.uid).map(x => normUid_(x.uid)));
+      let dupSkipped = 0;
 
       const scanEntries = [];
       const moveEntries = [];
@@ -5902,6 +6965,10 @@ document.getElementById("fileUploadScan").addEventListener("change", async (e) =
         const uidKey = keys.find(k=>{ const kk = k.trim().toLowerCase(); return kk === "uid" || kk.includes("rfid") || kk === "uid rfid"; });
         let uidVal = uidKey ? String(r[uidKey]).trim().toUpperCase() : "";
         if (uidVal === "-" || uidVal === "N/A") uidVal = "";
+        if (uidVal) {
+          if (existingUids.has(uidVal)) { dupSkipped++; continue; } // UID sudah ada di stok / dobel di file
+          existingUids.add(uidVal);
+        }
         const binVal = binKey ? String(r[binKey]).trim().toUpperCase() : "-";
         if (binVal && binVal !== "-") uploadedBins.add(binVal);
 
@@ -5943,7 +7010,8 @@ document.getElementById("fileUploadScan").addEventListener("change", async (e) =
       document.getElementById("fileUploadScan").value = "";
       allScanRenderLimit = 200;
       await loadAllScan();
-      toast(`✓ ${successCount} data tersimpan ke Lokal, sedang disinkron ke Cloud...`, "good");
+      invalidateUidIndex();
+      toast(`✓ ${successCount} data tersimpan ke Lokal, sedang disinkron ke Cloud...` + (dupSkipped ? ` (${dupSkipped} baris UID duplikat dilewati)` : ""), "good");
       flushSyncQueue();
     } catch (err) {
       console.error(err);
@@ -5965,9 +7033,14 @@ async function loadMovements(filterSku = "", startDate = "", endDate = "") {
       
       validRows = validRows.filter(r => ['INBOUND', 'OUTBOUND', 'SALES', 'RETUR', 'DELETE'].includes(r.type));
 
+      // RFID: log baru menyimpan uid langsung; log lama dicocokkan lewat ref_id ke unit yang RFID-nya masih ada di stok.
+      const uidByRef = new Map();
+      try { (await getUidIndex()).forEach((row, u) => { if (row && row.id) uidByRef.set(row.id, u); }); } catch(e) {}
+      const uidOf_ = (r) => r.uid || (r.ref_id ? uidByRef.get(r.ref_id) : "") || "";
+
       if (filterSku) {
           const q = filterSku.toLowerCase().trim();
-          validRows = validRows.filter(r => (r.sku && r.sku.toLowerCase().includes(q)) || (r.remark && r.remark.toLowerCase().includes(q)) || (r.docNo && r.docNo.toLowerCase().includes(q)));
+          validRows = validRows.filter(r => (r.sku && r.sku.toLowerCase().includes(q)) || (uidOf_(r) && uidOf_(r).toLowerCase().includes(q)) || (r.remark && r.remark.toLowerCase().includes(q)) || (r.docNo && r.docNo.toLowerCase().includes(q)));
       }
       
       if (startDate || endDate) {
@@ -5991,7 +7064,7 @@ async function loadMovements(filterSku = "", startDate = "", endDate = "") {
       tbody.innerHTML = "";
 
       if(validRows.length === 0){
-         tbody.innerHTML = `<tr><td colspan="5" class="hint" style="text-align:center; padding: 24px;">Tidak ada log pergerakan.</td></tr>`;
+         tbody.innerHTML = `<tr><td colspan="7" class="hint" style="text-align:center; padding: 24px;">Tidak ada log pergerakan.${filterSku ? `<br><span style="font-size:11px;">Log yang dibuat sebelum update RFID tidak menyimpan kode RFID, jadi unit lama yang sudah keluar tidak bisa dicari lewat RFID. Cari lewat SKU atau Bin, atau coba perluas rentang tanggal.</span>` : ''}</td></tr>`;
          document.getElementById("moveLoadMoreContainer").style.display = "none";
          return;
       }
@@ -6019,7 +7092,9 @@ async function loadMovements(filterSku = "", startDate = "", endDate = "") {
           <td>${typeBadge}</td>
           <td style="font-weight:bold;">${r.bin || '-'}</td>
           <td class="sku">${r.sku || '-'}</td>
+          <td class="sku">${uidOf_(r) ? escUid_(uidOf_(r)) : '<span class="hint">-</span>'}</td>
           <td>${safeRemark}${safeDocNo ? ` <span class="badge transfer">DOK: ${safeDocNo}</span>` : ''} <br> <span style="font-size:10px; color:var(--text-muted)">${safeNama}</span></td>
+          <td>${r.by ? escUid_(r.by) : '<span class="hint">-</span>'}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -6029,7 +7104,7 @@ async function loadMovements(filterSku = "", startDate = "", endDate = "") {
   } catch (err) {
       console.error(err);
       const tbody = document.getElementById("movementBody");
-      if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="hint" style="text-align:center; color:red;">Gagal memuat log lokal.</td></tr>`;
+      if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="hint" style="text-align:center; color:red;">Gagal memuat log lokal.</td></tr>`;
   }
 }
 
@@ -6145,11 +7220,14 @@ document.getElementById("btnExportMovements").onclick = async ()=>{
   const validRows = rows.filter(r => r !== null && r !== undefined && ['INBOUND', 'OUTBOUND', 'SALES', 'RETUR', 'DELETE'].includes(r.type));
   if(validRows.length === 0){ toast("Tidak ada log", ""); return; }
   
+  const uidByRefX = new Map();
+  try { (await getUidIndex()).forEach((row, u) => { if (row && row.id) uidByRefX.set(row.id, u); }); } catch(e) {}
   const wsData = validRows.map(r=>({
     "Waktu Eksekusi": r.ts ? new Date(r.ts).toLocaleString("id-ID") : "-",
     "Tipe Eksekusi": r.type || "-",
     "Bin Info": r.bin || "-",
     "SKU": r.sku,
+    "RFID": r.uid || (r.ref_id ? uidByRefX.get(r.ref_id) : "") || "-",
     "Nama Barang": r.nama || "-",
     "No Dokumen": r.docNo || "-",
     "Keterangan / Remark": r.remark || "-"
@@ -6174,7 +7252,7 @@ document.getElementById("btnClearMovements").onclick = async ()=>{
 document.getElementById("btnClearMovementsAll").onclick = async () => {
   const pass = prompt("Masukkan Password Administrator untuk menghapus SEMUA Movement Log (Lokal & Cloud):");
   if (pass === null) return;
-  if (pass !== ADMIN_PASSWORD) { toast("Password salah! Akses ditolak.", "bad"); return; }
+  if (!isAdminPw_(pass)) { toast("Password salah! Akses ditolak.", "bad"); return; }
   if (!confirm("⚠️ Ini akan menghapus SELURUH Movement Log di Lokal DAN Cloud (Google Sheets) secara PERMANEN untuk semua perangkat. Lanjutkan?")) return;
   try{
     await idbClearMovements();
@@ -6196,7 +7274,7 @@ async function loadHistoryCCTF(filterSku = "", startDate = "", endDate = "") {
       const rows = await idbGetAllMovements();
       let validRows = rows.filter(r => r !== null && r !== undefined);
       
-      validRows = validRows.filter(r => ['CYCLE_COUNT', 'TRANSFER', 'CC_CLEAR', 'CC_INSERT', 'RENAME_SKU'].includes(r.type));
+      validRows = validRows.filter(r => ['CYCLE_COUNT', 'TRANSFER', 'CC_CLEAR', 'CC_INSERT', 'CC_SELISIH', 'RENAME_SKU'].includes(r.type));
 
       if (filterSku) {
           const q = filterSku.toLowerCase().trim();
@@ -6224,7 +7302,7 @@ async function loadHistoryCCTF(filterSku = "", startDate = "", endDate = "") {
       tbody.innerHTML = "";
 
       if(validRows.length === 0){
-         tbody.innerHTML = `<tr><td colspan="5" class="hint" style="text-align:center; padding: 24px;">Tidak ada log Cycle Count / Transfer.</td></tr>`;
+         tbody.innerHTML = `<tr><td colspan="6" class="hint" style="text-align:center; padding: 24px;">Tidak ada log Cycle Count / Transfer.</td></tr>`;
          document.getElementById("cctfLoadMoreContainer").style.display = "none";
          return;
       }
@@ -6248,6 +7326,7 @@ async function loadHistoryCCTF(filterSku = "", startDate = "", endDate = "") {
           <td style="font-weight:bold;">${r.bin || '-'}</td>
           <td class="sku">${r.sku || '-'}</td>
           <td>${safeRemark}</td>
+          <td>${r.by ? escUid_(r.by) : '<span class="hint">-</span>'}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -6282,7 +7361,7 @@ document.getElementById("btnLoadMoreCCTF").onclick = () => {
 
 document.getElementById("btnExportCCTF").onclick = async ()=>{
   const rows = await idbGetAllMovements();
-  const validRows = rows.filter(r => r !== null && r !== undefined && ['CYCLE_COUNT', 'TRANSFER', 'CC_CLEAR', 'CC_INSERT', 'RENAME_SKU'].includes(r.type));
+  const validRows = rows.filter(r => r !== null && r !== undefined && ['CYCLE_COUNT', 'TRANSFER', 'CC_CLEAR', 'CC_INSERT', 'CC_SELISIH', 'RENAME_SKU'].includes(r.type));
   if(validRows.length === 0){ toast("Tidak ada log", ""); return; }
   
   const wsData = validRows.map(r=>({
@@ -6302,7 +7381,7 @@ document.getElementById("btnExportCCTF").onclick = async ()=>{
 document.getElementById("btnClearCCTF").onclick = async ()=>{
   if(!confirm("Hapus seluruh Log Cycle Count & Transfer Lokal secara permanen?")) return;
   const rows = await idbGetAllMovements();
-  const nonCCTFRows = rows.filter(r => r && !['CYCLE_COUNT', 'TRANSFER', 'CC_CLEAR', 'CC_INSERT', 'RENAME_SKU'].includes(r.type));
+  const nonCCTFRows = rows.filter(r => r && !['CYCLE_COUNT', 'TRANSFER', 'CC_CLEAR', 'CC_INSERT', 'CC_SELISIH', 'RENAME_SKU'].includes(r.type));
   await idbClearMovements();
   for(let r of nonCCTFRows) { await idbAddMovement(r); }
   loadHistoryCCTF();
@@ -6426,11 +7505,12 @@ async function refreshMasterStats(){
 document.getElementById("btnClearMasterLocal").onclick = async () => {
   const pass = prompt("Masukkan Password Administrator untuk menghapus SKU Lokal:");
   if (pass === null) return;
-  if (pass !== ADMIN_PASSWORD) { toast("Password salah! Akses ditolak.", "bad"); return; }
+  if (!isAdminPw_(pass)) { toast("Password salah! Akses ditolak.", "bad"); return; }
   if (!confirm("Hapus SEMUA Master SKU di Cache Lokal (browser ini saja)?\n\nData di Cloud (Google Sheets) TIDAK akan terhapus, dan bisa ditarik ulang kapan saja lewat 'Tarik Master Data Cloud ke Lokal'.")) return;
 
   try {
       await idbClearMaster();
+      await recordMovement("clear_master_local", "DELETE", "-", "-", "-", "Hapus Master SKU Lokal");
       await refreshMasterStats();
       toast("✓ Master SKU Lokal berhasil dihapus.", "good");
   } catch (err) {
@@ -6442,7 +7522,7 @@ document.getElementById("btnClearMasterLocal").onclick = async () => {
 document.getElementById("btnClearMasterCloud").onclick = async () => {
   const pass = prompt("Masukkan Password Administrator untuk menghapus SKU di Cloud (Google Sheets):");
   if (pass === null) return;
-  if (pass !== ADMIN_PASSWORD) { toast("Password salah! Akses ditolak.", "bad"); return; }
+  if (!isAdminPw_(pass)) { toast("Password salah! Akses ditolak.", "bad"); return; }
   if (!confirm("⚠️ PERINGATAN: Ini akan menghapus SEMUA Master SKU di Google Sheets Cloud secara PERMANEN untuk SEMUA pengguna aplikasi ini, bukan hanya di browser Anda.\n\nTindakan ini tidak bisa dibatalkan. Lanjutkan?")) return;
   if (!confirm("Konfirmasi sekali lagi: Anda yakin ingin menghapus seluruh Master SKU di Cloud?")) return;
 
@@ -6455,6 +7535,7 @@ document.getElementById("btnClearMasterCloud").onclick = async () => {
       localStorage.removeItem("sync_since_" + COL_MASTER);
       localStorage.removeItem("sync_epoch_" + COL_MASTER);
       await idbClearMaster();
+      await recordMovement("clear_master_cloud", "DELETE", "-", "-", "-", "Hapus Master SKU di Cloud");
       await refreshMasterStats();
       toast("✓ Master SKU di Cloud (dan cache lokal) berhasil dihapus.", "good");
   } catch (err) {
@@ -6621,6 +7702,7 @@ btnPrintQR.onclick = () => {
     renderInboundLog();
     await loadOutboundLogFromIDB();
     await primeRfidCache();
+    await migrateBinListsOnce_();
   } catch (e) {
     console.error("Gagal membuka database lokal (IndexedDB):", e);
     toast("Peringatan: Gagal membuka database lokal.", "warning");
@@ -6653,111 +7735,279 @@ btnPrintQR.onclick = () => {
   scanInput.focus();
 })();
 
-/* ============ UPLOAD SALES: potong Data Induk berdasarkan RFID Code ============ */
-(function initSalesUpload(){
-  const fileEl = document.getElementById("salesFile"), pickBtn = document.getElementById("btnSalesPick"), box = document.getElementById("salesPreview");
+/* ============ UPLOAD OUTBOUND MASSAL: potong via RFID, atau via Bin + SKU bila RFID kosong ============ */
+// Logika perencanaan (murni, tanpa DOM). stockRows = semua baris stok aktif { id, sku, bin, uid, nama }.
+// 1) Baris ber-RFID diproses lebih dulu (unit dikunci), 2) baris tanpa RFID mengambil dari bin + SKU yang tersisa.
+function planOutboundBulk_(items, stockRows, codeOf){
+  const normSku = v => String(v == null ? "" : v).trim().toUpperCase(); // pencocokan ketat: spasi di dalam SKU harus persis sama ("073679 6" != "0736796" != "073679  6")
+  const normBin = v => String(v == null ? "" : v).trim().toUpperCase();
+  const byUid = {};
+  stockRows.forEach(r => { if(r.uid){ const k = String(r.uid).trim().toUpperCase(); if(!byUid[k]) byUid[k] = r; } });
+  const used = new Set(), seenUid = new Set();
+  const res = items.map(it => ({ it, rows: [], ket: "", alasan: "" }));
+  const pool = (bin, sku) => stockRows.filter(r => !used.has(r.id) && (normBin(r.bin) || "-") === (bin || "-") && normSku(r.sku) === sku)
+                                      .sort((a, b) => (a.uid ? 1 : 0) - (b.uid ? 1 : 0)); // unit tanpa RFID diambil lebih dulu
+
+  // Pass 1: ada RFID
+  res.forEach(x => {
+    const it = x.it; if(!it.rfid) return;
+    const code = codeOf(it.rfid), bin = normBin(it.bin), sku = normSku(it.sku);
+    if(seenUid.has(code)){ x.alasan = "Duplikat RFID di file"; return; }
+    seenUid.add(code);
+    const row = byUid[code];
+    if(row && !used.has(row.id)){
+      used.add(row.id); x.rows = [row];
+      if(bin && (normBin(row.bin) || "-") !== bin) x.ket = `RFID tercatat di Bin ${row.bin || "-"} (file: ${bin}); diproses dari Bin ${row.bin || "-"}`;
+      return;
+    }
+    if(bin && sku){ // RFID tidak ada di stok -> tetap potong lewat Bin + SKU
+      const c = pool(bin, sku);
+      if(c.length){ used.add(c[0].id); x.rows = [c[0]]; x.ket = "RFID tidak ada di stok; dipotong via Bin + SKU"; return; }
+    }
+    x.alasan = "RFID tidak ada di stok" + (bin && sku ? ` & Bin ${bin} tidak berisi SKU ${it.sku}` : "");
+  });
+
+  // Pass 2: tanpa RFID -> Bin + SKU
+  res.forEach(x => {
+    const it = x.it; if(it.rfid) return;
+    const bin = normBin(it.bin), sku = normSku(it.sku), qty = Math.max(1, parseInt(it.qty) || 1);
+    if(!bin || !sku){ x.alasan = "BIN dan SKU wajib diisi bila RFID kosong"; return; }
+    const c = pool(bin, sku);
+    if(c.length < qty){ x.alasan = `Stok SKU ${it.sku} di Bin ${bin} hanya ${c.length}, diminta ${qty}`; return; }
+    x.rows = c.slice(0, qty); x.rows.forEach(r => used.add(r.id));
+    x.ket = "Dipotong via Bin + SKU";
+  });
+  return res;
+}
+
+(function initOutboundBulk(){
+  const fileEl = document.getElementById("outBulkFile"), pickBtn = document.getElementById("btnOutBulkPick"),
+        box = document.getElementById("outBulkPreview");
   if(!fileEl || !pickBtn) return;
-  let plan = null; // { found:[], missing:[] }
+  let plan = null;
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  const normCode = (v) => { const raw = String(v == null ? "" : v).trim(); return (extractRfidCode(raw) || raw).toUpperCase(); };
+  const codeOf = (v) => { const raw = String(v == null ? "" : v).trim(); return (extractRfidCode(raw) || raw).toUpperCase(); };
 
   pickBtn.onclick = () => { fileEl.value = ""; fileEl.click(); };
-  fileEl.onchange = () => { const f = fileEl.files[0]; if(f) readSales(f); };
-
-  function readSales(file){
-    box.innerHTML = '<span class="hint">Membaca file & mencocokkan RFID...</span>';
+  fileEl.onchange = () => { const f = fileEl.files[0]; if(f) readFile(f); };
+  function readFile(file){
+    box.innerHTML = '<span class="hint">Membaca file & mencocokkan stok...</span>';
     const reader = new FileReader();
     reader.onload = async (evt) => {
       try {
         const wb = XLSX.read(evt.target.result, { type: "array" });
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: "" });
-        const hi = rows.findIndex(r => r.some(c => /rfid/i.test(String(c))));
-        if(hi === -1){ box.innerHTML = '<span style="color:var(--danger)">Kolom "RFID Code" tidak ditemukan di file.</span>'; return; }
+        const hi = rows.findIndex(r => r.some(c => /^bin$/i.test(String(c).trim())) || r.some(c => /rfid/i.test(String(c))));
+        if(hi === -1){ box.innerHTML = '<span style="color:var(--danger)">Header tidak ditemukan. Pakai kolom: BIN, SKU, RFID.</span>'; return; }
         const head = rows[hi].map(c => String(c).trim().toLowerCase());
         const col = (re) => head.findIndex(h => re.test(h));
-        const cRfid = col(/rfid/), cSku = col(/^sku$/), cInv = col(/invoice/), cTkt = col(/ticket/), cType = col(/sales\s*type/);
-        const data = rows.slice(hi + 1).filter(r => String(r[cRfid] || "").trim());
-
-        const all = (await idbGetAllScans()).filter(r => r && r.type !== "OUT" && r.uid);
-        const byUid = {}; all.forEach(r => { const k = String(r.uid).trim().toUpperCase(); if(!byUid[k]) byUid[k] = r; });
-
-        const seen = new Set(), found = [], missing = [];
-        for(const r of data){
-          const code = normCode(r[cRfid]);
-          const meta = { rfid: code, skuFile: String(r[cSku] || "").trim(), invoice: String(r[cInv] || "").trim(), ticket: String(r[cTkt] || "").trim(), salesType: String(r[cType] || "").trim() };
-          if(seen.has(code)){ missing.push({ ...meta, alasan: "Duplikat di file (RFID sama muncul lagi)" }); continue; }
-          seen.add(code);
-          const row = byUid[code];
-          if(row){
-            const warn = meta.skuFile && String(row.sku).trim().toUpperCase() !== meta.skuFile.toUpperCase();
-            found.push({ ...meta, row, warn });
-          } else {
-            let mp = RFID_MAP[code] || await idbGetRfid(code);
-            missing.push({ ...meta, alasan: mp ? `RFID terdaftar (SKU ${mp.sku}) tapi tidak ada di Data Induk (belum inbound / sudah keluar)` : "RFID tidak terdaftar & tidak ada di Data Induk" });
-          }
-        }
-        plan = { found, missing, fileName: file.name };
-        renderPlan();
+        const cBin = col(/^bin/), cSku = col(/^sku$/), cRfid = col(/rfid/);
+        const items = rows.slice(hi + 1).map(r => ({
+          bin: cBin >= 0 ? String(r[cBin]).trim() : "", sku: cSku >= 0 ? String(r[cSku]).trim() : "",
+          rfid: cRfid >= 0 ? String(r[cRfid]).trim() : "", qty: 1, remark: "" // 1 baris = 1 unit; remark dari kolom Remark di halaman
+        })).filter(it => it.bin || it.sku || it.rfid);
+        if(!items.length){ box.innerHTML = '<span style="color:var(--danger)">Tidak ada baris data di file.</span>'; return; }
+        await buildPlan(items, file.name);
       } catch(e){ console.error(e); box.innerHTML = '<span style="color:var(--danger)">Gagal membaca file: ' + esc(e.message) + '</span>'; }
     };
     reader.readAsArrayBuffer(file);
   }
 
-  function renderPlan(){
-    const f = plan.found, m = plan.missing, warns = f.filter(x => x.warn).length;
-    const fRows = f.slice(0, 50).map(x => `<tr><td>${esc(x.rfid)}</td><td>${esc(x.row.sku)}</td><td><span class="badge muted">${esc(x.row.bin || "-")}</span></td><td>${esc(x.invoice)}</td>${x.warn ? '<td title="SKU di file berbeda dengan SKU di Data Induk">⚠</td>' : "<td></td>"}</tr>`).join("");
-    const mRows = m.slice(0, 50).map(x => `<tr><td>${esc(x.rfid)}</td><td>${esc(x.skuFile)}</td><td>${esc(x.alasan)}</td></tr>`).join("");
-    box.innerHTML = `
-      <div style="display:flex; gap:8px; margin-bottom:8px;">
-        <div class="stat-card" style="margin:0; flex:1;"><div class="num" style="color:var(--success)">${f.length}</div><div class="lbl">Akan dipotong</div></div>
-        <div class="stat-card" style="margin:0; flex:1; border-bottom:3px solid var(--danger);"><div class="num" style="color:var(--danger)">${m.length}</div><div class="lbl">Tidak cocok</div></div>
-      </div>
-      ${warns ? `<div class="hint" style="color:var(--warning); margin-bottom:6px;">⚠ ${warns} unit: SKU di file berbeda dengan SKU di Data Induk (tetap dipotong berdasarkan RFID).</div>` : ""}
-      ${f.length ? `<div style="max-height:170px; overflow:auto; margin-bottom:8px;"><table class="table-sm" style="width:100%; font-size:11px;"><thead><tr><th>RFID</th><th>SKU</th><th>Bin</th><th>Invoice</th><th></th></tr></thead><tbody>${fRows}</tbody></table>${f.length > 50 ? `<div class="hint">…dan ${f.length - 50} lainnya</div>` : ""}</div>` : ""}
-      ${m.length ? `<div style="max-height:150px; overflow:auto; margin-bottom:8px;"><table class="table-sm" style="width:100%; font-size:11px;"><thead><tr><th>RFID</th><th>SKU file</th><th>Alasan</th></tr></thead><tbody>${mRows}</tbody></table>${m.length > 50 ? `<div class="hint">…dan ${m.length - 50} lainnya (lihat laporan Excel)</div>` : ""}</div>` : ""}
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-accent" id="btnSalesGo" ${f.length ? "" : "disabled"}>✅ Potong Stok Sekarang (${f.length} unit)</button>
-        <button class="btn" id="btnSalesCancel">Batal</button>
-      </div>`;
-    document.getElementById("btnSalesCancel").onclick = () => { plan = null; box.innerHTML = ""; };
-    document.getElementById("btnSalesGo").onclick = executeSales;
+  async function buildPlan(items, fileName){
+    box.innerHTML = '<span class="hint">Mencocokkan dengan Data Induk...</span>';
+    const all = (await idbGetAllScans()).filter(r => r && r.type !== "OUT");
+    const res = planOutboundBulk_(items, all, codeOf);
+    plan = { ok: res.filter(x => x.rows.length), bad: res.filter(x => !x.rows.length), fileName };
+    renderPlan();
   }
 
-  async function executeSales(){
-    if(!plan || !plan.found.length) return;
-    if(!confirm(`Potong ${plan.found.length} unit dari Data Induk berdasarkan RFID? Tindakan ini menghapus unit dari bin-nya.`)) return;
-    const btn = document.getElementById("btnSalesGo"); btn.disabled = true;
-    const done = [], failed = [];
-    for(let i = 0; i < plan.found.length; i++){
-      const x = plan.found[i];
-      btn.textContent = `Memproses ${i + 1} / ${plan.found.length}...`;
-      try {
-        const remark = ["SALES", x.salesType, x.invoice ? "INV " + x.invoice : "", x.ticket ? "TKT " + x.ticket : ""].filter(Boolean).join(" | ");
-        await idbDeleteScan(x.row.id);
-        await recordMovement(x.row.id, "OUTBOUND", x.row.sku, x.row.nama, x.row.bin, remark);
-        done.push(x);
-      } catch(e){ console.error(e); failed.push({ ...x, alasan: "Gagal memproses: " + e.message }); }
+  function renderPlan(){
+    const ok = plan.ok, bad = plan.bad, units = ok.reduce((a, x) => a + x.rows.length, 0);
+    const okRows = ok.slice(0, 60).map(x => `<tr><td>${esc(x.rows.map(r => r.bin || "-").join(", "))}</td><td>${esc(x.rows[0].sku)}</td><td>${esc(x.it.rfid || "-")}</td><td style="text-align:center">${x.rows.length}</td><td style="font-size:10px">${esc(x.ket)}</td></tr>`).join("");
+    const badRows = bad.slice(0, 60).map(x => `<tr><td>${esc(x.it.bin)}</td><td>${esc(x.it.sku)}</td><td>${esc(x.it.rfid || "-")}</td><td>${esc(x.alasan)}</td></tr>`).join("");
+    box.innerHTML = `
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <div class="stat-card" style="margin:0; flex:1;"><div class="num" style="color:var(--success)">${units}</div><div class="lbl">Unit akan dipotong</div></div>
+        <div class="stat-card" style="margin:0; flex:1; border-bottom:3px solid var(--danger);"><div class="num" style="color:var(--danger)">${bad.length}</div><div class="lbl">Baris gagal</div></div>
+      </div>
+      ${ok.length ? `<div style="max-height:190px; overflow:auto; margin-bottom:8px;"><table class="table-sm" style="width:100%; font-size:11px;"><thead><tr><th>Bin</th><th>SKU</th><th>RFID</th><th>Qty</th><th>Cara</th></tr></thead><tbody>${okRows}</tbody></table>${ok.length > 60 ? `<div class="hint">…dan ${ok.length - 60} lainnya</div>` : ""}</div>` : ""}
+      ${bad.length ? `<div style="max-height:150px; overflow:auto; margin-bottom:8px;"><table class="table-sm" style="width:100%; font-size:11px;"><thead><tr><th>Bin</th><th>SKU</th><th>RFID</th><th>Alasan</th></tr></thead><tbody>${badRows}</tbody></table>${bad.length > 60 ? `<div class="hint">…dan ${bad.length - 60} lainnya (lihat laporan Excel)</div>` : ""}</div>` : ""}
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-accent" id="btnOutBulkGo" ${ok.length ? "" : "disabled"}>✅ Potong Stok Sekarang (${units} unit)</button>
+        <button class="btn" id="btnOutBulkCancel">Batal</button>
+      </div>`;
+    document.getElementById("btnOutBulkCancel").onclick = () => { plan = null; box.innerHTML = ""; };
+    document.getElementById("btnOutBulkGo").onclick = execute;
+  }
+
+  async function execute(){
+    if(!plan || !plan.ok.length) return;
+    const units = plan.ok.reduce((a, x) => a + x.rows.length, 0);
+    if(!confirm(`Potong ${units} unit dari Data Induk? Tindakan ini menghapus unit dari bin-nya.`)) return;
+    const btn = document.getElementById("btnOutBulkGo"); btn.disabled = true;
+    const defRemark = (document.getElementById("outRemarkInput").value || "").trim() || "Outbound Massal";
+    const report = []; let done = 0, failed = 0, n = 0;
+    for(const x of plan.ok){
+      for(const row of x.rows){
+        n++; btn.textContent = `Memproses ${n} / ${units}...`;
+        const remark = x.it.remark || defRemark;
+        try {
+          await idbDeleteScan(row.id);
+          await recordMovement(row.id, "OUTBOUND", row.sku, row.nama, row.bin, remark, "", row.uid);
+          sessionOutboundScans.push({ id: row.id, ts: new Date().toISOString(), bin: row.bin, sku: row.sku, uid: row.uid || null, remark, nama: row.nama });
+          done++;
+          report.push({ Status: "DIPOTONG", BIN: row.bin || "-", SKU: row.sku, RFID: row.uid || x.it.rfid || "", Nama: row.nama || "", Remark: remark, Keterangan: x.ket });
+        } catch(e){
+          console.error(e); failed++;
+          report.push({ Status: "GAGAL", BIN: row.bin || "-", SKU: row.sku, RFID: x.it.rfid || "", Nama: row.nama || "", Remark: remark, Keterangan: "Gagal memproses: " + e.message });
+        }
+      }
     }
-    const report = [
-      ...done.map(x => ({ Status: "DIPOTONG", RFID: x.rfid, SKU: x.row.sku, Nama: x.row.nama || "", Bin: x.row.bin || "-", Invoice: x.invoice, Ticket: x.ticket, "Sales Type": x.salesType, Keterangan: x.warn ? "SKU file berbeda dengan Data Induk" : "" })),
-      ...plan.missing.concat(failed).map(x => ({ Status: "TIDAK DIPOTONG", RFID: x.rfid, SKU: x.skuFile, Nama: "", Bin: "", Invoice: x.invoice, Ticket: x.ticket, "Sales Type": x.salesType, Keterangan: x.alasan }))
-    ];
+    plan.bad.forEach(x => report.push({ Status: "TIDAK DIPOTONG", BIN: x.it.bin, SKU: x.it.sku, RFID: x.it.rfid, Nama: "", Remark: x.it.remark || "", Keterangan: x.alasan }));
+    outboundStats.total += done + plan.bad.length + failed; outboundStats.found += done; outboundStats.notfound += plan.bad.length + failed;
+    document.getElementById("outStatTotal").textContent = outboundStats.total;
+    document.getElementById("outStatFound").textContent = outboundStats.found;
+    document.getElementById("outStatNotFound").textContent = outboundStats.notfound;
+    renderOutboundLog();
+    if(typeof invalidateUidIndex === "function") invalidateUidIndex();
+    const badCount = plan.bad.length + failed;
     plan = null;
-    box.innerHTML = `<div class="result found"><div class="nama"><b>${done.length}</b> unit berhasil dipotong dari Data Induk${failed.length ? `, <b style="color:var(--danger)">${failed.length}</b> gagal` : ""}.</div>
-      <div style="margin-top:8px;"><button class="btn btn-accent" id="btnSalesReport">⬇ Unduh Laporan Hasil (Excel)</button></div></div>`;
-    document.getElementById("btnSalesReport").onclick = () => {
+    box.innerHTML = `<div class="result found"><div class="nama"><b>${done}</b> unit berhasil dipotong${badCount ? `, <b style="color:var(--danger)">${badCount}</b> baris gagal/tidak dipotong` : ""}.</div>
+      <div style="margin-top:8px;"><button class="btn btn-accent" id="btnOutBulkReport">⬇ Unduh Laporan Hasil (Excel)</button></div></div>`;
+    document.getElementById("btnOutBulkReport").onclick = () => {
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report), "Hasil Upload Sales");
-      XLSX.writeFile(wb, `Hasil_Upload_Sales_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report), "Hasil Outbound Massal");
+      XLSX.writeFile(wb, `Hasil_Outbound_Massal_${new Date().toISOString().slice(0, 10)}.xlsx`);
     };
-    toast(`✓ Sales: ${done.length} unit dipotong dari Data Induk`, "good");
+    toast(`✓ Outbound massal: ${done} unit dipotong`, "good");
+    if(!document.getElementById("tab-allscan").classList.contains("hidden")) loadAllScan();
+    if(!document.getElementById("tab-pivot").classList.contains("hidden")) loadPivot();
   }
 })();
 
-/* ============ LOGIN & PERAN (Admin / Dashboard / Pencarian) ============ */
+/* ============ KELOLA USER (khusus Admin) ============ */
+const USER_ROLE_LABEL_ = { admin: "Admin", operator: "Operator", dashboard: "Dashboard saja", search: "Pencarian saja" };
+function isAdminNow_(){ return sessionStorage.getItem("wms_role") === "admin"; }
+
+let usrShowPw_ = false;
+function loadUsersTab(){
+  if(!isAdminNow_()) return;
+  const tbody = document.getElementById("usrBody");
+  if(!tbody) return;
+  const list = getUsers_();
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="4" class="hint" style="text-align:center;">Belum ada akun. Akun bawaan "admin" (password administrator) tetap bisa dipakai.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map((u, i) => `<tr>
+    <td style="font-weight:bold;">${escUid_(u.name)}${u.seed ? ' <span class="badge muted" title="Ada di file aplikasi">tertanam</span>' : ''}${u.ov ? ' <span class="badge warning" title="Password diubah admin dan disinkronkan lewat cloud ke semua perangkat">diubah</span>' : ''}</td>
+    <td>${escUid_(USER_ROLE_LABEL_[u.role] || u.role)}</td>
+    <td><div style="display:flex; gap:6px; align-items:center;">
+      <input type="${usrShowPw_ ? 'text' : 'password'}" id="usrPw_${i}" class="input-sm usr-pw" value="${escUid_(u.pw || '')}" placeholder="${u.pw ? '' : '(belum tersimpan, ketik password baru)'}" autocomplete="new-password" style="width:180px;" onkeydown="if(event.key==='Enter') usrSavePw(${i})">
+      <button class="btn btn-accent btn-sm" onclick="usrSavePw(${i})">Simpan</button>
+    </div></td>
+    <td style="text-align:center;"><button class="btn-delete" onclick="usrDelete(${i})" title="Hapus akun">🗑️</button></td>
+  </tr>`).join("");
+}
+
+window.usrSavePw = function(i){
+  if(!isAdminNow_()){ toast("Hanya Admin yang bisa mengubah password.", "bad"); return; }
+  const list = getUsers_();
+  const u = list[i]; if(!u) return;
+  const el = document.getElementById("usrPw_" + i);
+  const pw = el ? el.value : "";
+  if(pw.length < 4){ toast("Password minimal 4 karakter.", "bad"); return; }
+  if(u.pw === pw){ toast("Password tidak berubah.", "warning"); return; }
+  u.hash = hashPw_(u.name, pw); u.pw = pw;
+  if(u.seed) u.ov = true;
+  saveUsers_(list);
+  toast(CLOUD_CFG.url ? `✓ Password ${u.name} diperbarui & dikirim ke cloud (berlaku di semua komputer).` : `⚠ Password ${u.name} hanya tersimpan di komputer ini karena cloud (⚙️) belum diatur.`, CLOUD_CFG.url ? "good" : "warning");
+  loadUsersTab();
+};
+
+document.getElementById("usrTogglePw").onclick = () => {
+  usrShowPw_ = !usrShowPw_;
+  document.getElementById("usrTogglePw").textContent = usrShowPw_ ? "🙈 Sembunyikan password" : "👁 Tampilkan password";
+  document.querySelectorAll(".usr-pw").forEach(el => { el.type = usrShowPw_ ? "text" : "password"; });
+};
+
+document.getElementById("usrSave").onclick = () => {
+  if(!isAdminNow_()){ toast("Hanya Admin yang bisa mengelola akun.", "bad"); return; }
+  const name = document.getElementById("usrName").value.trim();
+  const pw = document.getElementById("usrPass").value;
+  const role = document.getElementById("usrRole").value;
+  if(!name){ toast("Nama pengguna wajib diisi.", "bad"); return; }
+  if(name.length > 30){ toast("Nama pengguna maksimal 30 karakter.", "bad"); return; }
+  if(/^(admin|tamu)/i.test(name)){ toast('Nama yang diawali "admin" atau "tamu" dicadangkan sistem.', "bad"); return; }
+  if(pw.length < 4){ toast("Password minimal 4 karakter.", "bad"); return; }
+  const list = getUsers_();
+  const idx = list.findIndex(x => String(x.name).toLowerCase() === name.toLowerCase());
+  if(idx >= 0 && list[idx].seed){ toast("Akun ini tertanam. Ubah password-nya lewat kolom Password di tabel.", "bad"); return; }
+  const rec = { name: idx >= 0 ? list[idx].name : name, hash: hashPw_(idx >= 0 ? list[idx].name : name, pw), pw: pw, role, created: idx >= 0 ? list[idx].created : new Date().toISOString() };
+  if(idx >= 0) list[idx] = rec; else list.push(rec);
+  saveUsers_(list);
+  document.getElementById("usrName").value = ""; document.getElementById("usrPass").value = "";
+  toast(idx >= 0 ? `✓ Akun ${rec.name} diperbarui.` : `✓ Akun ${rec.name} dibuat.`, "good");
+  loadUsersTab();
+};
+
+window.usrDelete = function(i){
+  if(!isAdminNow_()) return;
+  const list = getUsers_();
+  const u = list[i]; if(!u) return;
+  if(u.seed){ toast("Akun tertanam tidak bisa dihapus dari sini (ada di file aplikasi).", "bad"); return; }
+  if(!confirm(`Hapus akun "${u.name}"? Riwayat transaksi atas nama ini tetap tersimpan.`)) return;
+  list.splice(i, 1); saveUsers_(list);
+  toast("✓ Akun dihapus.", "good");
+  loadUsersTab();
+};
+
+document.getElementById("usrExport").onclick = () => {
+  if(!isAdminNow_()) return;
+  const blob = new Blob([JSON.stringify({ v: 1, users: getUsers_().filter(u => !u.seed || u.ov).map(u => ({ name: u.name, hash: u.hash, pw: u.pw, role: u.role, created: u.created })) }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "wms-akun.json"; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+};
+
+document.getElementById("usrImport").addEventListener("change", (e) => {
+  const f = e.target.files[0]; if(!f) return;
+  if(!isAdminNow_()){ toast("Hanya Admin yang bisa mengimpor akun.", "bad"); e.target.value = ""; return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const data = JSON.parse(rd.result);
+      const incoming = Array.isArray(data) ? data : data.users;
+      if(!Array.isArray(incoming)) throw new Error("format");
+      const list = getUsers_();
+      let added = 0, updated = 0;
+      incoming.forEach(u => {
+        if(!u || !u.name || !u.hash || !(u.role in { admin:1, operator:1, dashboard:1, search:1 })) return;
+        const i = list.findIndex(x => String(x.name).toLowerCase() === String(u.name).toLowerCase());
+        const nm = i >= 0 ? list[i].name : String(u.name);
+        const pwI = u.pw ? String(u.pw) : undefined;
+        const rec = { name: nm, hash: pwI ? hashPw_(nm, pwI) : String(u.hash), pw: pwI, role: u.role, created: u.created || new Date().toISOString() };
+        if(i >= 0 && list[i].seed){ rec.seed = true; rec.ov = true; }
+        if(i >= 0){ list[i] = rec; updated++; } else { list.push(rec); added++; }
+      });
+      saveUsers_(list);
+      toast(`✓ Impor selesai: ${added} baru, ${updated} diperbarui.`, "good");
+      loadUsersTab();
+    }catch(err){ toast("File akun tidak valid.", "bad"); }
+    e.target.value = "";
+  };
+  rd.readAsText(f);
+});
+
+/* ============ LOGIN & PERAN (Admin / Operator / Dashboard / Pencarian) ============ */
 (function initRoleLogin(){
-  const ROLE_TABS = { admin: null, dashboard: ["dashboardreport"], search: ["search"] };
-  const ROLE_LABEL = { admin: "ADMIN", dashboard: "DASHBOARD", search: "PENCARIAN" };
+  const ROLE_TABS = {
+    admin: null,
+    operator: ["scan","outbound","cyclecount","opname","transferbin","search","movement","historycctf","discrepancy","qrcode"],
+    dashboard: ["dashboardreport"],
+    search: ["search"]
+  };
+  const ROLE_LABEL = { admin: "ADMIN", operator: "OPERATOR", dashboard: "DASHBOARD", search: "PENCARIAN" };
   const gate = document.getElementById("loginGate");
   const getRole = () => sessionStorage.getItem("wms_role") || "";
   const allows = (id) => { const r = getRole(); if(!(r in ROLE_TABS)) return false; const a = ROLE_TABS[r]; return a === null || a.includes(id); };
@@ -6779,15 +8029,19 @@ btnPrintQR.onclick = () => {
     return res;
   };
 
-  function applyRole(role){
+  function applyRole(role, name){
     sessionStorage.setItem("wms_role", role);
+    if(name) sessionStorage.setItem("wms_user", JSON.stringify({ name: name, role: role }));
+    const uName = (curUser_() || {}).name || "";
+    const avatar = document.querySelector(".shell-avatar");
+    if(avatar && uName) avatar.textContent = uName.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase() || "US";
     const a = ROLE_TABS[role], admin = (role === "admin");
     tabNames.forEach(t => { const n = document.getElementById(t.nav); if(n) n.style.display = (a === null || a.includes(t.id)) ? "" : "none"; });
     document.querySelectorAll(".nav-group").forEach(g => {
       g.style.display = Array.from(g.querySelectorAll(".nav-item")).some(i => i.style.display !== "none") ? "" : "none";
     });
     document.body.classList.toggle("role-restricted", !admin);
-    document.getElementById("roleBadge").textContent = ROLE_LABEL[role];
+    document.getElementById("roleBadge").textContent = (uName && uName.toUpperCase() !== ROLE_LABEL[role] ? uName + " · " : "") + ROLE_LABEL[role];
     if(admin){
       sessionStorage.setItem("admin_unlocked", "true"); // menu terkunci terbuka karena sudah login admin
       const n1 = document.getElementById("navAllScan"), n2 = document.getElementById("navBinCL");
@@ -6801,28 +8055,263 @@ btnPrintQR.onclick = () => {
     if(!admin) forceFull();
   }
 
-  function tryAdmin(){
-    const inp = document.getElementById("lgPass");
-    if(inp.value === ADMIN_PASSWORD){ inp.value = ""; document.getElementById("lgErr").textContent = ""; applyRole("admin"); }
-    else { document.getElementById("lgErr").textContent = "Password salah."; inp.select(); }
+  let lgChecking_ = false;
+  function findLoginUser_(name, pw){
+    const u = getUsers_().find(x => String(x.name).toLowerCase() === name.toLowerCase());
+    return (u && u.hash === hashPw_(u.name, pw) && ROLE_TABS[u.role] !== undefined) ? u : null;
   }
-  document.getElementById("lgAdmin").onclick = () => {
-    document.getElementById("lgPassRow").style.display = "block";
-    document.getElementById("lgPass").focus();
-  };
-  document.getElementById("lgPassGo").onclick = tryAdmin;
-  document.getElementById("lgPass").addEventListener("keydown", e => { if(e.key === "Enter") tryAdmin(); });
-  document.getElementById("lgDash").onclick = () => applyRole("dashboard");
-  document.getElementById("lgSearch").onclick = () => applyRole("search");
+  async function tryLogin(){
+    if(lgChecking_) return;
+    const uEl = document.getElementById("lgUser"), pEl = document.getElementById("lgPass"), errEl = document.getElementById("lgErr");
+    const name = uEl.value.trim(), pw = pEl.value;
+    if(!name || !pw){ errEl.textContent = "Isi nama pengguna dan password."; return; }
+    // Akun bawaan: "admin" + password administrator lama (supaya tidak terkunci dari aplikasi).
+    if(name.toLowerCase() === "admin" && isAdminPw_(pw)){
+      uEl.value = ""; pEl.value = ""; errEl.textContent = "";
+      applyRole("admin", "ADMIN"); return;
+    }
+    let u = findLoginUser_(name, pw);
+    // Gagal? Mungkin password baru diubah di komputer lain: tarik akun terbaru dari cloud lalu coba lagi.
+    if(!u && CLOUD_CFG.url && navigator.onLine !== false){
+      lgChecking_ = true; errEl.textContent = "Memeriksa akun terbaru dari cloud...";
+      try{
+        await Promise.race([
+          (async () => { await pullFromCloud("masterbin"); await syncUsersAfterPull_(); })(),
+          new Promise(r => setTimeout(r, 12000))
+        ]);
+      }catch(e){ console.warn("Gagal menarik akun dari cloud:", e); }
+      lgChecking_ = false;
+      u = findLoginUser_(name, pw);
+    }
+    if(u){
+      uEl.value = ""; pEl.value = ""; errEl.textContent = "";
+      applyRole(u.role, u.name);
+    } else {
+      errEl.textContent = CLOUD_CFG.url ? "Nama pengguna atau password salah." : "Nama pengguna atau password salah. (Cloud belum diatur: klik \"Atur koneksi cloud\" di bawah.)";
+      pEl.select();
+    }
+  }
+  document.getElementById("lgPassGo").onclick = tryLogin;
+  document.getElementById("lgUser").addEventListener("keydown", e => { if(e.key === "Enter") document.getElementById("lgPass").focus(); });
+  document.getElementById("lgPass").addEventListener("keydown", e => { if(e.key === "Enter") tryLogin(); });
+  document.getElementById("lgDash").onclick = () => applyRole("dashboard", "Tamu (Dashboard)");
+  document.getElementById("lgSearch").onclick = () => applyRole("search", "Tamu (Pencarian)");
   document.getElementById("btnLogout").onclick = () => {
     if(!confirm("Keluar dan kembali ke layar login?")) return;
-    sessionStorage.removeItem("wms_role"); sessionStorage.removeItem("admin_unlocked");
+    sessionStorage.removeItem("wms_role"); sessionStorage.removeItem("wms_user"); sessionStorage.removeItem("admin_unlocked");
     location.reload();
   };
 
   // Muat ulang halaman (F5) tetap di peran yang sama selama tab masih terbuka.
   const saved = getRole();
-  if(saved in ROLE_TABS) applyRole(saved);
+  if(saved in ROLE_TABS) applyRole(saved, (curUser_() || {}).name || "");
+})();
+</script>
+<script id="ux-boost-2-js">
+/* UX BOOST 2 (JS): ripple, count-up angka, mode gelap, palet perintah Ctrl+K, tilt login.
+   Semua ringan: delegasi event, rAF, tanpa library, tidak menyentuh logika aplikasi. */
+(function(){
+  var root=document.documentElement;
+  var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var hoverOk=window.matchMedia&&matchMedia("(hover:hover)").matches;
+
+  // Hentikan animasi tak berujung saat tab tidak terlihat
+  document.addEventListener("visibilitychange",function(){root.classList.toggle("tab-hidden",document.hidden);});
+
+  // Ripple pada tombol
+  document.addEventListener("pointerdown",function(e){
+    var b=e.target.closest&&e.target.closest(".btn");
+    if(!b||b.disabled||reduce)return;
+    var r=b.getBoundingClientRect(),s=Math.max(r.width,r.height)*2,sp=document.createElement("span");
+    sp.className="rip";sp.style.width=sp.style.height=s+"px";
+    sp.style.left=(e.clientX-r.left-s/2)+"px";sp.style.top=(e.clientY-r.top-s/2)+"px";
+    b.appendChild(sp);setTimeout(function(){sp.remove();},650);
+  },{passive:true});
+
+  // Ikon KPI pada kartu Dashboard
+  var KPI={dashKpiSku:"📦",dashKpiQty:"🧮",dashKpiBins:"🗄️",dashKpiInbound:"📥",dashKpiOutbound:"📤",dashKpiEmptyBin:"🕳️",
+    dashKpiDead:"💤",dashKpiDiscrepancy:"⚖️",dashOpKpiToday:"✅",dashOpKpiAkurasi:"🎯",dashOpKpiDiff:"⚠️",dashOpKpiNet:"📊"};
+  Object.keys(KPI).forEach(function(id){
+    var n=document.getElementById(id),c=n&&n.closest(".stat-card");
+    if(c&&!c.querySelector(".kpi-ico")){var i=document.createElement("span");i.className="kpi-ico";i.textContent=KPI[id];c.appendChild(i);}
+  });
+
+  // Count-up: animasi angka saat nilai .num berubah (hanya bilangan bulat tanpa tanda)
+  function parse(s){s=(s||"").trim();return /^\d{1,3}(\.\d{3})+$|^\d+$/.test(s)?{v:parseInt(s.replace(/\./g,""),10),dot:s.indexOf(".")>-1}:null;}
+  function attach(el){
+    var p=parse(el.textContent);el._v=p?p.v:null;
+    var mo=new MutationObserver(function(){
+      var q=parse(el.textContent);
+      if(!q){el._v=null;return;}
+      var from=el._v==null?0:el._v,to=q.v;
+      el._v=to;
+      if(reduce||from===to||to>9999999||!el.offsetParent)return;
+      var t0=performance.now(),dur=550,fmt=function(n){return q.dot?n.toLocaleString("id-ID"):String(n);};
+      if(el._raf)cancelAnimationFrame(el._raf);
+      (function step(t){
+        var k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3),val=Math.round(from+(to-from)*e);
+        mo.disconnect();el.textContent=fmt(k<1?val:to);
+        mo.observe(el,{childList:true,characterData:true,subtree:true});
+        if(k<1)el._raf=requestAnimationFrame(step);
+      })(t0);
+    });
+    mo.observe(el,{childList:true,characterData:true,subtree:true});
+  }
+  document.querySelectorAll(".stat-card .num").forEach(attach);
+
+  // Mode gelap
+  var bar=document.querySelector(".shell-right"),badge=document.getElementById("roleBadge");
+  if(bar){
+    var tb=document.createElement("span");
+    tb.className="shell-icon";tb.id="btnTheme";tb.title="Ganti tema terang/gelap";tb.style.cssText="cursor:pointer;margin-right:6px;font-size:14px";
+    tb.setAttribute("role","button");tb.tabIndex=0;
+    var sync=function(){var d=root.getAttribute("data-theme")==="dark";tb.textContent=d?"☀️":"🌙";
+      if(window.Chart){Chart.defaults.color=d?"#9fb3c8":"#666";Chart.defaults.borderColor=d?"rgba(255,255,255,.08)":"rgba(0,0,0,.1)";}};
+    tb.onclick=function(){
+      var d=root.getAttribute("data-theme")==="dark";
+      if(d)root.removeAttribute("data-theme");else root.setAttribute("data-theme","dark");
+      try{localStorage.setItem("wms_theme",d?"light":"dark");}catch(e){}
+      sync();
+      var dash=document.getElementById("tab-dashboardreport");
+      if(dash&&!dash.classList.contains("hidden")&&typeof loadDashboardReport==="function")loadDashboardReport();
+    };
+    bar.insertBefore(tb,badge||bar.firstChild);
+    sync();setTimeout(sync,1500);
+  }
+
+  // Palet perintah (Ctrl/Cmd+K) untuk lompat antar menu
+  var cm=document.createElement("div");cm.id="cmdk";
+  cm.innerHTML='<div class="box"><input type="text" placeholder="Ketik nama menu... (Enter untuk buka, Esc tutup)" autocomplete="off"><div class="list"></div><div class="ft">Ctrl + K untuk membuka kapan saja · ↑ ↓ untuk memilih</div></div>';
+  document.body.appendChild(cm);
+  var inp=cm.querySelector("input"),list=cm.querySelector(".list"),items=[],sel=0;
+  function build(){
+    var q=inp.value.trim().toLowerCase();items=[];
+    document.querySelectorAll(".nav-item").forEach(function(b){
+      if(b.style.display==="none")return;
+      var t=(b.querySelector(".lbl-t")||b).textContent.trim();
+      if(!q||t.toLowerCase().indexOf(q)>-1)items.push({b:b,t:t,i:b.querySelector(".ico")});
+    });
+    sel=0;draw();
+  }
+  function draw(){
+    list.innerHTML="";
+    if(!items.length){list.innerHTML='<div class="it" style="color:var(--text-muted)">Menu tidak ditemukan</div>';return;}
+    items.forEach(function(x,i){
+      var d=document.createElement("div");d.className="it"+(i===sel?" on":"");
+      if(x.i)d.appendChild(x.i.cloneNode(true));
+      var s=document.createElement("span");s.textContent=x.t;d.appendChild(s);
+      d.onclick=function(){go(i);};list.appendChild(d);
+    });
+  }
+  function open(){
+    var g=document.getElementById("loginGate");
+    if(g&&getComputedStyle(g).display!=="none")return;
+    cm.classList.add("show");inp.value="";build();inp.focus();
+  }
+  function close(){cm.classList.remove("show");}
+  function go(i){var x=items[i];if(!x)return;close();x.b.click();}
+  inp.addEventListener("input",build);
+  inp.addEventListener("keydown",function(e){
+    if(e.key==="ArrowDown"){e.preventDefault();sel=Math.min(sel+1,items.length-1);draw();}
+    else if(e.key==="ArrowUp"){e.preventDefault();sel=Math.max(sel-1,0);draw();}
+    else if(e.key==="Enter"){e.preventDefault();go(sel);}
+  });
+  cm.addEventListener("click",function(e){if(e.target===cm)close();});
+  document.addEventListener("keydown",function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();cm.classList.contains("show")?close():open();}
+    else if(e.key==="Escape"&&cm.classList.contains("show"))close();
+  });
+
+  // Tilt 3D kartu login mengikuti kursor
+  var lg=document.querySelector("#loginGate .lg-card");
+  if(lg&&hoverOk&&!reduce){
+    var gate=document.getElementById("loginGate"),raf=0,mx=0,my=0;
+    gate.addEventListener("pointermove",function(e){
+      mx=e.clientX;my=e.clientY;if(raf)return;
+      raf=requestAnimationFrame(function(){raf=0;var r=lg.getBoundingClientRect();
+        lg.style.setProperty("--ry",(((mx-r.left)/r.width-.5)*8).toFixed(1)+"deg");
+        lg.style.setProperty("--rx",((-((my-r.top)/r.height-.5))*8).toFixed(1)+"deg");});
+    },{passive:true});
+    gate.addEventListener("pointerleave",function(){lg.style.setProperty("--rx","0deg");lg.style.setProperty("--ry","0deg");});
+  }
+})();
+</script>
+<script id="ux-boost-js">
+/* UX BOOST: ikon SVG (ringan, tanpa library) + tilt 3D hemat resource */
+(function(){
+  var P={
+    camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+    upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
+    refresh:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    clip:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/>',
+    shuffle:'<path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/>',
+    search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    chart:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+    history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    scale:'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+    trend:'<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+    monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    package:'<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+    tag:'<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r=".6" fill="currentColor"/>',
+    qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h4v-4"/>',
+    users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    panel:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
+    stop:'<path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86z"/><path d="m15 9-6 6M9 9l6 6"/>',
+    settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+    logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>'
+  };
+  var E={"📷":"camera","📤":"upload","🔄":"refresh","📋":"clip","🔀":"shuffle","🔎":"search","📊":"chart","📜":"history",
+    "⚖":"scale","📈":"trend","🖥":"monitor","🔒":"lock","🌍":"globe","📦":"package","🏷":"tag","🔳":"qr","👥":"users"};
+  var IDS={btnToggleSidebar:"panel",btnCancelSync:"stop",btnCloudSettings:"settings",btnLogout:"logout"};
+  function svg(n){return '<span class="ico" data-i="'+n+'" aria-hidden="true"><svg viewBox="0 0 24 24">'+P[n]+'</svg></span>';}
+
+  function navItem(b){
+    if(b.firstElementChild&&b.firstElementChild.classList.contains("ico"))return;
+    var t=b.textContent.replace(/\uFE0F/g,"").trim(), m=t.match(/^(\S+)\s+([\s\S]*)$/);
+    if(!m)return; var n=E[m[1]]; if(!n)return; if(b.id==="navHistoryCCTF")n="doc";
+    b.innerHTML=svg(n)+'<span class="lbl-t">'+m[2].replace(/</g,"&lt;")+'</span>';
+    b.title=m[2];
+  }
+  function decorate(){
+    var i,l=document.querySelectorAll(".nav-item");
+    for(i=0;i<l.length;i++)navItem(l[i]);
+    for(var id in IDS){var el=document.getElementById(id);
+      if(el&&!el.querySelector(".ico")){el.innerHTML=svg(IDS[id]);el.setAttribute("role","button");el.tabIndex=0;}}
+    var lg=document.querySelectorAll("#loginGate .lg-ico");
+    for(i=0;i<lg.length;i++){var s=lg[i]; if(s.classList.contains("ico"))continue;
+      var n=E[s.textContent.replace(/\uFE0F/g,"").trim()]; if(n){s.outerHTML=svg(n).replace('class="ico"','class="ico lg-ico"');}}
+  }
+  decorate();
+
+  // Skrip aplikasi menulis ulang label menu (mis. "Unlocked"): dekorasi ulang, 1 pemanggilan per frame
+  var menu=document.querySelector(".nav-menu"),q=false;
+  if(menu&&window.MutationObserver){
+    new MutationObserver(function(){ if(q)return; q=true; requestAnimationFrame(function(){q=false;decorate();}); })
+      .observe(menu,{childList:true,subtree:true});
+  }
+  // Aksesibilitas: ikon bar atas bisa ditekan dengan Enter/Spasi
+  document.addEventListener("keydown",function(e){
+    var t=e.target; if((e.key==="Enter"||e.key===" ")&&t.classList&&t.classList.contains("shell-icon")){e.preventDefault();t.click();}
+  });
+
+  // Tilt 3D untuk kartu statistik: satu listener (delegasi), rAF, nonaktif di layar sentuh & reduced-motion
+  var mm=window.matchMedia;
+  if(mm&&mm("(hover:hover)").matches&&!mm("(prefers-reduced-motion:reduce)").matches){
+    var cur=null,px=0,py=0,raf=0;
+    function apply(){raf=0;if(!cur)return;var r=cur.getBoundingClientRect(),
+      x=(px-r.left)/r.width-.5,y=(py-r.top)/r.height-.5;
+      cur.style.setProperty("--ry",(x*12).toFixed(1)+"deg");cur.style.setProperty("--rx",(-y*12).toFixed(1)+"deg");}
+    document.addEventListener("pointermove",function(e){
+      var c=e.target.closest&&e.target.closest(".stat-card");
+      if(c!==cur){reset();cur=c;}
+      if(!c)return; px=e.clientX;py=e.clientY; if(!raf)raf=requestAnimationFrame(apply);
+    },{passive:true});
+    document.addEventListener("pointerleave",reset,true);
+    function reset(){if(cur){cur.style.setProperty("--rx","0deg");cur.style.setProperty("--ry","0deg");cur=null;}}
+  }
 })();
 </script>
 </body>
